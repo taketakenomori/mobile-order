@@ -122,7 +122,7 @@ h2 {
 /* 横スクロール：overflow-x */
 .products.horizontal {
   overflow-x: auto;
-  overflow-y: auto;
+  overflow-y: hidden;
 }
 
 /* 画面向き別のグリッド設定 */
@@ -243,4 +243,19 @@ body[data-orientation="landscape"] #screenMenu p.muted.small {
   -webkit-line-clamp: 2;      /* 2行でカット */
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* 横画面ではメニュー画面の見出し・説明文を消す */
+body[data-orientation="landscape"] #screenMenu h2,
+body[data-orientation="landscape"] #screenMenu p.muted.small {
+  display: none;
+}
+
+/* 横画面ではトップバーも少し薄く・文字小さく */
+body[data-orientation="landscape"] .topbar {
+  padding: 4px 8px;
+}
+
+body[data-orientation="landscape"] .topbar h1 {
+  font-size: 14px;
 }
