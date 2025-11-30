@@ -276,3 +276,9 @@ body[data-orientation="landscape"] .cartbar .primary {
   font-size: 13px;
   min-height: 34px;
 }
+
+/* body に .no-scroll が付いているときは、ページ全体をスクロールさせない */
+body.no-scroll {
+  overflow: hidden;
+  height: 100%;
+}
