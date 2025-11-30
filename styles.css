@@ -259,3 +259,20 @@ body[data-orientation="landscape"] .topbar {
 body[data-orientation="landscape"] .topbar h1 {
   font-size: 14px;
 }
+
+/* 横画面ではカートバーを少し薄くする */
+body[data-orientation="landscape"] .cartbar {
+  padding: 4px 8px;
+  padding-bottom: calc(4px + env(safe-area-inset-bottom));
+}
+
+body[data-orientation="landscape"] .cartinfo {
+  font-size: 11px;
+}
+
+/* 横画面の「会計へ」ボタンも少し小さめに */
+body[data-orientation="landscape"] .cartbar .primary {
+  padding: 6px 10px;
+  font-size: 13px;
+  min-height: 34px;
+}
