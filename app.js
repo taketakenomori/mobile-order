@@ -17,7 +17,7 @@ const PRODUCTS = [
 const $ = (s) => document.querySelector(s);
 const byId = (id) => document.getElementById(id);
 
-// 条件ラベル（レポートやテキストログにも使う）
+// 条件ラベル
 const CONDITION_LABELS = {
   vv: "縦画面 × 縦スクロール",
   vh: "縦画面 × 横スクロール",
@@ -35,7 +35,7 @@ let STATE = {
   participantId: ""
 };
 
-// URLの ?cond= から条件を取得して、向きとスクロール方向を決める
+// URLの ?cond= から条件を取得
 function parseConditionFromURL() {
   const params = new URLSearchParams(window.location.search);
   const cond = (params.get("cond") || "vv").toLowerCase();
@@ -44,19 +44,19 @@ function parseConditionFromURL() {
   let scrollDir = "vertical";
 
   switch (cond) {
-    case "vv": // 縦 / 縦
+    case "vv":
       orientation = "portrait";
       scrollDir = "vertical";
       break;
-    case "vh": // 縦 / 横
+    case "vh":
       orientation = "portrait";
       scrollDir = "horizontal";
       break;
-    case "hv": // 横 / 縦
+    case "hv":
       orientation = "landscape";
       scrollDir = "vertical";
       break;
-    case "hh": // 横 / 横
+    case "hh":
       orientation = "landscape";
       scrollDir = "horizontal";
       break;
@@ -69,7 +69,7 @@ function parseConditionFromURL() {
   STATE.orientation = orientation;
   STATE.scrollDir = scrollDir;
 
-  // CSS側に渡すための属性
+  // CSS用属性
   document.body.dataset.orientation = orientation;
 
   // products のスクロール方向クラスを付与
@@ -78,8 +78,7 @@ function parseConditionFromURL() {
   productArea.classList.add(scrollDir);
 
   // スタート画面の条件ラベル
-  byId("condLabel").textContent =
-    CONDITION_LABELS[cond] || cond;
+  byId("condLabel").textContent = CONDITION_LABELS[cond] || cond;
 }
 
 // 商品カード生成
@@ -171,18 +170,22 @@ function refreshCartSummary() {
   byId("totalAmount").textContent = "¥" + total.toLocaleString();
 }
 
-// 画面切り替え ＋ main のロック制御
+// 画面切り替え＋ロック制御
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(el => el.classList.remove("active"));
   byId(id).classList.add("active");
 
   const mainEl = document.querySelector("main");
+  const body = document.body;
+
   if (id === "screenMenu") {
-    // 注文画面のときだけページ全体をロック（メニュー部分だけスクロール）
+    // 注文画面：main と body のスクロールをロック
     mainEl.classList.add("menu-locked");
+    body.classList.add("no-scroll");
   } else {
-    // イントロ・結果画面は普通にスクロール可能
+    // それ以外の画面：ロック解除
     mainEl.classList.remove("menu-locked");
+    body.classList.remove("no-scroll");
   }
 }
 
@@ -289,4 +292,3 @@ window.addEventListener("DOMContentLoaded", () => {
   byId("btnCopyText").addEventListener("click", copyText);
   byId("btnCopyJson").addEventListener("click", copyJson);
 });
-
