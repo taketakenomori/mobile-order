@@ -13,6 +13,7 @@ html, body {
   -webkit-text-size-adjust: 100%;
 }
 
+/* 上部バー */
 .topbar {
   position: sticky;
   top: 0;
@@ -26,9 +27,15 @@ html, body {
   font-size: 18px;
 }
 
+/* 画面本体 */
 main {
   padding: 8px 12px calc(80px + env(safe-area-inset-bottom));
-  min-height: calc(100vh - 44px);
+}
+
+/* 注文画面のときだけ main をロックして高さを固定＆スクロール禁止 */
+main.menu-locked {
+  height: calc(100vh - 44px);  /* トップバーぶん差し引き（目安） */
+  overflow: hidden;
 }
 
 h2 {
@@ -36,6 +43,7 @@ h2 {
   font-size: 18px;
 }
 
+/* 画面切り替えの基本 */
 .screen {
   display: none;
 }
@@ -43,10 +51,11 @@ h2 {
   display: block;
 }
 
+/* メニュー画面は flex で縦に積む */
 .screen.active#screenMenu {
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 44px);
+  height: 100%;
 }
 
 #screenMenu h2 {
@@ -57,10 +66,10 @@ h2 {
   margin: 0 0 4px;
 }
 
+/* カード・フォーム類 */
 .card {
   background: #fff;
   border-radius: 12px;
-  border: 1px sealed #eee;
   border: 1px solid #eee;
   padding: 12px;
   margin-top: 8px;
@@ -102,12 +111,13 @@ h2 {
   font-size: 12px;
 }
 
-/* 商品グリッド全体 */
+/* 商品グリッド全体（メニュー部分） */
 .products {
   margin-top: 6px;
-  flex: 1;          
-  min-height: 0;    
-  padding-bottom: 90px
+  flex: 1;                 /* 上の説明と下のカートの間を全部使う */
+  min-height: 0;           /* flex 内でスクロールさせるためのおまじない */
+  padding-bottom: 90px;    /* 下のカートバーぶんの余白 */
+  -webkit-overflow-scrolling: touch; /* iOSでの内部スクロール安定化 */
 }
 
 /* 縦スクロール：overflow-y */
@@ -116,10 +126,10 @@ h2 {
   overflow-x: hidden;
 }
 
-/* 横スクロール：overflow-x */
+/* 横スクロール：overflow-x（縦画面では縦も少し動けるように auto） */
 .products.horizontal {
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: auto;
 }
 
 /* 画面向き別のグリッド設定 */
@@ -154,6 +164,11 @@ body[data-orientation="landscape"] .products.horizontal {
   grid-auto-columns: calc(33.333% - 5px); /* 3列相当 */
   grid-template-rows: repeat(2, auto);
   gap: 8px;
+}
+
+/* 横画面では横スクロールを主役にしたいので、縦スクを切る */
+body[data-orientation="landscape"] .products.horizontal {
+  overflow-y: hidden;
 }
 
 /* 商品カード */
@@ -232,17 +247,9 @@ body[data-orientation="landscape"] .products.horizontal {
   border: 1px solid #eee;
 }
 
-/* 横画面のときは説明文をコンパクトに */
-body[data-orientation="landscape"] #screenMenu p.muted.small {
-  font-size: 10px;
-  line-height: 1.3;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;      /* 2行でカット */
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
+/* ===== 横画面用の調整 ===== */
 
-/* 横画面ではメニュー画面の見出し・説明文を消す */
+/* 横画面のときはメニュー画面の見出し・説明文を消す（縦方向を広く使う） */
 body[data-orientation="landscape"] #screenMenu h2,
 body[data-orientation="landscape"] #screenMenu p.muted.small {
   display: none;
@@ -252,21 +259,18 @@ body[data-orientation="landscape"] #screenMenu p.muted.small {
 body[data-orientation="landscape"] .topbar {
   padding: 4px 8px;
 }
-
 body[data-orientation="landscape"] .topbar h1 {
   font-size: 14px;
 }
 
-/* 横画面ではカートバーを少し薄くする */
+/* 横画面ではカートバーも少し薄くする */
 body[data-orientation="landscape"] .cartbar {
   padding: 4px 8px;
   padding-bottom: calc(4px + env(safe-area-inset-bottom));
 }
-
 body[data-orientation="landscape"] .cartinfo {
   font-size: 11px;
 }
-
 /* 横画面の「会計へ」ボタンも少し小さめに */
 body[data-orientation="landscape"] .cartbar .primary {
   padding: 6px 10px;
@@ -274,7 +278,18 @@ body[data-orientation="landscape"] .cartbar .primary {
   min-height: 34px;
 }
 
-/* body に .no-scroll が付いているときは、ページ全体をスクロールさせない */
-body.no-scroll {
-  overflow: hidden;
+/* 横画面では商品カードもコンパクトに */
+body[data-orientation="landscape"] .product-card {
+  padding: 6px;
 }
+body[data-orientation="landscape"] .product-name {
+  font-size: 12px;
+}
+body[data-orientation="landscape"] .product-price {
+  font-size: 11px;
+}
+body[data-orientation="landscape"] .qty-btn {
+  padding: 2px 6px;
+  font-size: 13px;
+}
+
