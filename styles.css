@@ -31,7 +31,6 @@ html, body {
 main {
   padding: 8px 12px calc(80px + env(safe-area-inset-bottom));
   height: calc(100vh - 44px);
-  overflow: hidden;
 }
 
 h2 {
