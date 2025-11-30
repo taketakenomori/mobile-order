@@ -92,8 +92,7 @@ h2 {
 /* 商品グリッド全体 */
 .products {
   margin-top: 10px;
-  height: calc(100vh - 190px);
-  max-height: none;
+  max-height: calc(100vh - 200px);
 }
 
 /* 縦スクロール：overflow-y */
