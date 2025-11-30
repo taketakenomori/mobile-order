@@ -172,10 +172,10 @@ function showScreen(id) {
   const body = document.body;
 
   if (id === "screenMenu") {
-    // 注文画面のときだけスクロール禁止
+    // 注文画面だけスクロール禁止
     body.classList.add("no-scroll");
   } else {
-    // それ以外（イントロ / 結果）はスクロール可能
+    // その他の画面（intro/result）はスクロール可
     body.classList.remove("no-scroll");
   }
 }
