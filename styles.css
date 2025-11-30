@@ -34,7 +34,19 @@ main {
   overflow: hidden;
 }
 
-#screenMenu {
+h2 {
+  margin: 8px 0 12px;
+  font-size: 18px;
+}
+
+.screen {
+  display: none;
+}
+.screen.active {
+  display: block;
+}
+
+.screen.active#screenMenu {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -46,18 +58,6 @@ main {
 
 #screenMenu p.muted.small {
   margin: 0 0 4px;
-}
-
-h2 {
-  margin: 8px 0 12px;
-  font-size: 18px;
-}
-
-.screen {
-  display: none;
-}
-.screen.active {
-  display: block;
 }
 
 .card {
@@ -108,8 +108,9 @@ h2 {
 /* 商品グリッド全体 */
 .products {
   margin-top: 6px;
-  flex: 1;       
-  min-height: 0;
+  flex: 1;          
+  min-height: 0;    
+  padding-bottom: 90px
 }
 
 /* 縦スクロール：overflow-y */
@@ -121,7 +122,7 @@ h2 {
 /* 横スクロール：overflow-x */
 .products.horizontal {
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: auto;
 }
 
 /* 画面向き別のグリッド設定 */
@@ -234,10 +235,12 @@ body[data-orientation="landscape"] .products.horizontal {
   border: 1px solid #eee;
 }
 
+/* 横画面のときは説明文をコンパクトに */
 body[data-orientation="landscape"] #screenMenu p.muted.small {
   font-size: 10px;
   line-height: 1.3;
   display: -webkit-box;
-  -webkit-line-clamp: 2;      
+  -webkit-line-clamp: 2;      /* 2行でカット */
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
