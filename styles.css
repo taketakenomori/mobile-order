@@ -12,7 +12,6 @@ html, body {
   background: #fafafa;
   color: #111;
   -webkit-text-size-adjust: 100%;
-  overflow: hidden;
 }
 
 .topbar {
