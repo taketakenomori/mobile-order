@@ -12,6 +12,7 @@ html, body {
   background: #fafafa;
   color: #111;
   -webkit-text-size-adjust: 100%;
+  overflow: hidden;
 }
 
 .topbar {
@@ -91,7 +92,8 @@ h2 {
 /* 商品グリッド全体 */
 .products {
   margin-top: 10px;
-  max-height: calc(100vh - 200px);
+  height: calc(100vh - 190px);
+  max-height: none;
 }
 
 /* 縦スクロール：overflow-y */
