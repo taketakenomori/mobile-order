@@ -168,6 +168,16 @@ function refreshCartSummary() {
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(el => el.classList.remove("active"));
   byId(id).classList.add("active");
+
+  const body = document.body;
+
+  if (id === "screenMenu") {
+    // 注文画面のときだけスクロール禁止
+    body.classList.add("no-scroll");
+  } else {
+    // それ以外（イントロ / 結果）はスクロール可能
+    body.classList.remove("no-scroll");
+  }
 }
 
 // 実験開始
