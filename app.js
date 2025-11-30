@@ -1,21 +1,29 @@
-// シンプルなメニュー（後で好きに差し替えてOK）
+// シンプルなメニュー（必要に応じて差し替えOK）
 const PRODUCTS = [
-  { id: "m1", name: "ハンバーガー",      price: 300 },
-  { id: "m2", name: "チーズバーガー",    price: 340 },
-  { id: "m3", name: "てりやきバーガー",  price: 360 },
-  { id: "m4", name: "フィレオフィッシュ", price: 350 },
-  { id: "s1", name: "ポテト",            price: 250 },
-  { id: "s2", name: "ナゲット",          price: 290 },
-  { id: "d1", name: "コーラ",            price: 200 },
-  { id: "d2", name: "ウーロン茶",        price: 180 },
-  { id: "d3", name: "オレンジジュース",  price: 190 },
-  { id: "ds1", name: "ソフトクリーム",   price: 220 },
-  { id: "ds2", name: "アップルパイ",     price: 230 },
-  { id: "ds3", name: "シェイク",         price: 260 }
+  { id: "m1",  name: "ハンバーガー",       price: 300 },
+  { id: "m2",  name: "チーズバーガー",     price: 340 },
+  { id: "m3",  name: "てりやきバーガー",   price: 360 },
+  { id: "m4",  name: "フィレオフィッシュ", price: 350 },
+  { id: "s1",  name: "ポテト",             price: 250 },
+  { id: "s2",  name: "ナゲット",           price: 290 },
+  { id: "d1",  name: "コーラ",             price: 200 },
+  { id: "d2",  name: "ウーロン茶",         price: 180 },
+  { id: "d3",  name: "オレンジジュース",   price: 190 },
+  { id: "ds1", name: "ソフトクリーム",     price: 220 },
+  { id: "ds2", name: "アップルパイ",       price: 230 },
+  { id: "ds3", name: "シェイク",           price: 260 }
 ];
 
 const $ = (s) => document.querySelector(s);
 const byId = (id) => document.getElementById(id);
+
+// 条件ラベル（レポートやテキストログにも使う）
+const CONDITION_LABELS = {
+  vv: "縦画面 × 縦スクロール",
+  vh: "縦画面 × 横スクロール",
+  hv: "横画面 × 縦スクロール",
+  hh: "横画面 × 横スクロール"
+};
 
 let STATE = {
   conditionCode: "vv",         // vv, vh, hv, hh
@@ -27,10 +35,11 @@ let STATE = {
   participantId: ""
 };
 
-// URLの ?cond= から条件を取得
+// URLの ?cond= から条件を取得して、向きとスクロール方向を決める
 function parseConditionFromURL() {
   const params = new URLSearchParams(window.location.search);
-  const cond = params.get("cond") || "vv";
+  const cond = (params.get("cond") || "vv").toLowerCase();
+
   let orientation = "portrait";
   let scrollDir = "vertical";
 
@@ -60,19 +69,17 @@ function parseConditionFromURL() {
   STATE.orientation = orientation;
   STATE.scrollDir = scrollDir;
 
-  // body にデータ属性を付与（CSSでレイアウト切り替え）
+  // CSS側に渡すための属性
   document.body.dataset.orientation = orientation;
 
+  // products のスクロール方向クラスを付与
   const productArea = byId("productArea");
-  productArea.classList.add(scrollDir); // vertical or horizontal
+  productArea.classList.remove("vertical", "horizontal");
+  productArea.classList.add(scrollDir);
 
-  const labelMap = {
-    vv: "縦画面 / 縦スクロール",
-    vh: "縦画面 / 横スクロール",
-    hv: "横画面 / 縦スクロール",
-    hh: "横画面 / 横スクロール"
-  };
-  byId("condLabel").textContent = labelMap[cond] || cond;
+  // スタート画面の条件ラベル
+  byId("condLabel").textContent =
+    CONDITION_LABELS[cond] || cond;
 }
 
 // 商品カード生成
@@ -164,19 +171,18 @@ function refreshCartSummary() {
   byId("totalAmount").textContent = "¥" + total.toLocaleString();
 }
 
-// 画面切り替え
+// 画面切り替え ＋ main のロック制御
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(el => el.classList.remove("active"));
   byId(id).classList.add("active");
 
-  const body = document.body;
-
+  const mainEl = document.querySelector("main");
   if (id === "screenMenu") {
-    // 注文画面だけスクロール禁止
-    body.classList.add("no-scroll");
+    // 注文画面のときだけページ全体をロック（メニュー部分だけスクロール）
+    mainEl.classList.add("menu-locked");
   } else {
-    // その他の画面（intro/result）はスクロール可
-    body.classList.remove("no-scroll");
+    // イントロ・結果画面は普通にスクロール可能
+    mainEl.classList.remove("menu-locked");
   }
 }
 
@@ -218,20 +224,17 @@ function finishExperiment() {
     total_amount: total
   };
 
+  // JSONログ（研究者用）
   const jsonStr = JSON.stringify(payload, null, 2);
   byId("jsonOutput").textContent = jsonStr;
 
   // フォーム用テキスト
   const durationSec = (payload.duration_ms / 1000).toFixed(1);
-  const labelMap = {
-    vv: "縦画面 / 縦スクロール",
-    vh: "縦画面 / 横スクロール",
-    hv: "横画面 / 縦スクロール",
-    hh: "横画面 / 横スクロール"
-  };
+  const label = CONDITION_LABELS[payload.condition] || "";
+
   let lines = [];
   lines.push(`参加者ID: ${payload.participant_id ?? ""}`);
-  lines.push(`条件: ${payload.condition}（${labelMap[payload.condition] || ""}）`);
+  lines.push(`条件: ${payload.condition}（${label}）`);
   lines.push(`開始時刻: ${payload.start_time}`);
   lines.push(`終了時刻: ${payload.end_time}`);
   lines.push(`所要時間: ${durationSec}秒`);
@@ -286,3 +289,4 @@ window.addEventListener("DOMContentLoaded", () => {
   byId("btnCopyText").addEventListener("click", copyText);
   byId("btnCopyJson").addEventListener("click", copyJson);
 });
+
