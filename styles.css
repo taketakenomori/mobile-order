@@ -293,3 +293,12 @@ body[data-orientation="landscape"] .qty-btn {
   font-size: 13px;
 }
 
+/* ===== メニュー中だけ body のスクロールも止める ===== */
+body.no-scroll {
+  overflow: hidden;
+  height: 100%;
+}
+
+  font-size: 13px;
+}
+
