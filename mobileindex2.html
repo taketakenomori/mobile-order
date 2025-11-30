@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>モバイルオーダー実験</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <h1>モバイルオーダー実験</h1>
+</header>
+
+<main>
+  <!-- スタート画面 -->
+  <section id="screenIntro" class="screen active">
+    <h2>実験の説明</h2>
+    <p class="muted">
+      ご自身のスマートフォンで、モバイルオーダー風の画面から注文をしていただきます。<br>
+      「スタート」ボタンを押してから「会計」ボタンを押すまでの時間と、注文内容を記録します。
+    </p>
+    <form class="card" id="introForm">
+      <label class="block">参加者ID（任意）
+        <input type="text" id="participantId" placeholder="例: S001">
+      </label>
+      <p class="muted small">
+        この画面は、条件 <span id="condLabel">--</span> が割り当てられています。<br>
+        実験者の指示に従って、スマホの向きをセットしてください。
+      </p>
+      <button type="button" id="btnStart" class="primary">スタート</button>
+    </form>
+  </section>
+
+  <!-- メニュー画面 -->
+  <section id="screenMenu" class="screen">
+    <h2>メニューを選んでください</h2>
+    <p class="muted small">
+      食べたい・飲みたいと思うものを自由に選んでください。<br>
+      選び終わったら、画面下の「会計へ」を押してください。
+    </p>
+
+    <div id="productArea" class="products">
+      <!-- JSで商品カードを生成 -->
+    </div>
+
+    <div class="cartbar">
+      <div class="cartinfo">
+        <span id="itemCount">0</span>品・合計 <span id="totalAmount">¥0</span>
+      </div>
+      <button id="btnCheckout" class="primary">会計へ</button>
+    </div>
+  </section>
+
+  <!-- 結果画面 -->
+  <section id="screenResult" class="screen">
+    <h2>完了しました</h2>
+    <div class="card">
+      <p class="muted">
+        ① 下の「フォーム用テキストをコピー」を押してください。<br>
+        ② 実験者から案内されたGoogleフォームを開き、回答欄に貼り付けてください。
+      </p>
+      <button id="btnCopyText" class="primary">フォーム用テキストをコピー</button>
+      <h3 class="small">フォームに貼り付ける内容</h3>
+      <pre id="textOutput" class="jsonbox"></pre>
+
+      <h3 class="small">（研究者用）JSONログ</h3>
+      <button id="btnCopyJson" class="secondary">JSONをコピー</button>
+      <pre id="jsonOutput" class="jsonbox"></pre>
+    </div>
+  </section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
