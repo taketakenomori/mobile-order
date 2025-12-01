@@ -1,5 +1,4 @@
 // 画面の向きごとに 36品メニューを2種類用意
-// ★名前や価格はこのままでも、あとで自由に書き換えてOK
 const MENUS = {
   portrait: [
     { id: "p1",  name: "ハンバーガー",         price: 300 },
@@ -135,7 +134,7 @@ function parseConditionFromURL() {
   STATE.orientation = orientation;
   STATE.scrollDir = scrollDir;
 
-  // ★ 画面の向きごとにメニューを切り替え
+  // 画面の向きごとにメニューを切り替え
   STATE.currentProducts = MENUS[orientation] || MENUS.portrait;
 
   // CSS用属性（レイアウト切り替えに使用）
@@ -239,30 +238,15 @@ function refreshCartSummary() {
   byId("totalAmount").textContent = "¥" + total.toLocaleString();
 }
 
-// 画面切り替え＋ロック制御
+// 画面切り替え（スクロールロックは CSS 側で完結）
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(el => el.classList.remove("active"));
   byId(id).classList.add("active");
 
-  const mainEl = document.querySelector("main");
-  const body = document.body;
-
-  // 画面切り替え時に、念のためスクロール位置をリセット
-  window.scrollTo(0, 0);
-  mainEl.scrollTop = 0;
-
-  if (id === "screenMenu") {
-    // 注文画面：main と body のスクロールをロック
-    mainEl.classList.add("menu-locked");
-    body.classList.add("no-scroll");
-  } else if (id === "screenIntro") {
-    // イントロ画面：body だけロック（#screenIntro 内をスクロール）
-    mainEl.classList.remove("menu-locked");
-    body.classList.add("no-scroll");
-  } else {
-    // 結果画面など：ロック解除（ページ全体スクロールOK）
-    mainEl.classList.remove("menu-locked");
-    body.classList.remove("no-scroll");
+  // 念のため、各画面切り替え時にセクション内のスクロール位置をリセット
+  const active = byId(id);
+  if (active) {
+    active.scrollTop = 0;
   }
 }
 
@@ -304,7 +288,7 @@ function finishExperiment() {
     total_amount: total
   };
 
-  // フォーム用テキストだけ生成（JSONログは出さない）
+  // フォーム用テキストだけ生成
   const durationSec = (payload.duration_ms / 1000).toFixed(1);
   const label = CONDITION_LABELS[payload.condition] || "";
 
@@ -354,5 +338,5 @@ window.addEventListener("DOMContentLoaded", () => {
   byId("btnStart").addEventListener("click", startExperiment);
   byId("btnCheckout").addEventListener("click", finishExperiment);
   byId("btnCopyText").addEventListener("click", copyText);
-  // ★ JSONログは使わないので、btnCopyJson などは触らない
 });
+
