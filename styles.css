@@ -161,9 +161,11 @@ body[data-orientation="portrait"] .products {
 
 /* 縦画面 + 横スクロール（vh）：2列×4行ベースの横送り */
 body[data-orientation="portrait"] .products.horizontal {
-  grid-auto-flow: column;                      /* 列方向へ“ページ送り” */
-  grid-auto-columns: calc(50% - 4px);          /* 1ページぶんの幅（2列相当） */
-  grid-template-rows: repeat(4, minmax(0, 1fr)); /* 4行前提 */
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc(50% - 4px); /* 2列相当 */
+  /* ★ 行の高さはカードの高さに任せる（grid-template-rows は指定しない） */
+  gap: 8px;
 }
 
 /* 🔹 横画面：3列ベース（hv / hh 共通） */
@@ -178,7 +180,6 @@ body[data-orientation="landscape"] .products.horizontal {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: calc(33.333% - 5px);        /* 1ページぶんの幅（3列相当） */
-  grid-template-rows: repeat(3, minmax(0, 1fr)); /* 3行前提 */
   gap: 8px;
   overflow-y: hidden;
 }
