@@ -109,7 +109,12 @@ h2 {
 
 /* メニュー画面も main 全体を占める */
 #screenMenu {
-  display: flex;
+  /* display はここでは指定しない */
+}
+
+/* アクティブなときだけ、flexレイアウト＋高さ100% にする */
+.screen.active#screenMenu {
+  display: flex;           /* .screen.active と同じだが明示しておくと安心 */
   flex-direction: column;
   height: 100%;
 }
@@ -127,7 +132,7 @@ h2 {
   margin-top: 6px;
   flex: 1;                 /* 上の説明と下のカートの間を全部使う */
   min-height: 0;           /* flex 内でスクロールさせるためのおまじない */
-  padding-bottom: 90px;    /* 下のカートバーぶんの余白 */
+  padding-bottom: 60px;    /* 下のカートバーぶんの余白 */
   -webkit-overflow-scrolling: touch; /* iOSでの内部スクロール安定化 */
 }
 
