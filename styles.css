@@ -8,7 +8,7 @@ html, body {
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow: hidden;  /* ← ブラウザ全体のスクロールを完全に止める */
+  overflow: hidden;  /* ブラウザ全体のスクロールを止める */
   font-family: system-ui, -apple-system, "Segoe UI", Roboto,
                "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
   background: #fafafa;
@@ -32,9 +32,9 @@ html, body {
 
 /* 画面本体：常に画面高さからトップバーぶんを引いたサイズに固定 */
 main {
-  height: calc(100% - 44px);
-  padding: 8px 12px 8px;   /* ← 下はシンプルに 8px に */
-  overflow: hidden;           /* main 自体はスクロールしない */
+  height: calc(100% - 44px);      /* トップバーぶんをざっくり引く */
+  padding: 8px 12px 8px;          /* 下もシンプルな余白 */
+  overflow: hidden;               /* main 自体はスクロールしない */
 }
 
 /* 画面切り替えの基本：各 screen が main 全体を占める */
@@ -109,12 +109,12 @@ h2 {
 
 /* メニュー画面も main 全体を占める */
 #screenMenu {
-  /* display はここでは指定しない */
+  /* display はここでは指定しない（.screen / .screen.active に任せる） */
 }
 
 /* アクティブなときだけ、flexレイアウト＋高さ100% にする */
 .screen.active#screenMenu {
-  display: flex;           /* .screen.active と同じだが明示しておくと安心 */
+  display: flex;
   flex-direction: column;
   height: 100%;
 }
@@ -131,9 +131,9 @@ h2 {
 .products {
   margin-top: 6px;
   flex: 1;                 /* 上の説明と下のカートの間を全部使う */
-  min-height: 0;           /* flex 内でスクロールさせるためのおまじない */
+  min-height: 0;
   padding-bottom: 60px;    /* 下のカートバーぶんの余白 */
-  -webkit-overflow-scrolling: touch; /* iOSでの内部スクロール安定化 */
+  -webkit-overflow-scrolling: touch;
 }
 
 /* 縦スクロール：overflow-y */
@@ -142,48 +142,44 @@ h2 {
   overflow-x: hidden;
 }
 
-/* 横スクロール：overflow-x（縦画面では縦も少し動けるように auto） */
+/* 横スクロール：overflow-x */
 .products.horizontal {
   overflow-x: auto;
-  overflow-y: auto;
+  overflow-y: hidden;  /* 横スク時は縦スクなしにして軸をはっきりさせる */
 }
 
-/* 画面向き別のグリッド設定 */
-
-/* 縦画面 + 縦スクロール: 2列グリッド */
-body[data-orientation="portrait"] .products.vertical {
+/* 共通のグリッド設定（列数は向きごとに切り替え） */
+.products {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
-/* 縦画面 + 横スクロール: 2列×3行ベースで横方向一覧 */
+/* 🔹 縦画面：2列ベース（vv / vh 共通） */
+body[data-orientation="portrait"] .products {
+  grid-template-columns: repeat(2, minmax(0, 1fr));  /* 2列 */
+}
+
+/* 縦画面 + 横スクロール（vh）：2列×4行ベースの横送り */
 body[data-orientation="portrait"] .products.horizontal {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: calc(50% - 4px); /* 2列相当 */
-  grid-template-rows: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  grid-auto-flow: column;                      /* 列方向へ“ページ送り” */
+  grid-auto-columns: calc(50% - 4px);          /* 1ページぶんの幅（2列相当） */
+  grid-template-rows: repeat(4, minmax(0, 1fr)); /* 4行前提 */
 }
 
-/* 横画面 + 縦スクロール: 3列グリッド */
+/* 🔹 横画面：3列ベース（hv / hh 共通） */
 body[data-orientation="landscape"] .products.vertical {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));  /* 3列 */
   gap: 8px;
 }
 
-/* 横画面 + 横スクロール: 3列×2行ベースで横方向一覧 */
+/* 横画面 + 横スクロール（hh）：3列×3行ベースの横送り */
 body[data-orientation="landscape"] .products.horizontal {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: calc(33.333% - 5px); /* 3列相当 */
-  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-auto-columns: calc(33.333% - 5px);        /* 1ページぶんの幅（3列相当） */
+  grid-template-rows: repeat(3, minmax(0, 1fr)); /* 3行前提 */
   gap: 8px;
-}
-
-/* 横画面では横スクロールを主役にしたいので、縦スクを切る */
-body[data-orientation="landscape"] .products.horizontal {
   overflow-y: hidden;
 }
 
@@ -196,7 +192,11 @@ body[data-orientation="landscape"] .products.horizontal {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+
+  /* ★ 全条件でカードの形を統一（だいたい 3:4 の縦長） */
+  aspect-ratio: 3 / 4;
 }
+
 .product-name {
   font-size: 14px;
   font-weight: 600;
@@ -244,7 +244,7 @@ body[data-orientation="landscape"] .products.horizontal {
   background: #fff;
   border-top: 1px solid #eee;
   display: flex;
-  justify-content: space-between;  /* ← 正しい指定 */
+  justify-content: space-between;
   align-items: center;
   z-index: 20;
 }
@@ -299,36 +299,4 @@ body[data-orientation="landscape"] .cartbar .primary {
   padding: 6px 10px;
   font-size: 13px;
   min-height: 34px;
-}
-
-/* ★ hh（横画面 × 横スクロール）の文字サイズを hv と同じに戻す */
-body[data-orientation="landscape"] .products.horizontal .product-card {
-  padding: 8px;      /* 元のサイズ */
-}
-
-body[data-orientation="landscape"] .products.horizontal .product-name {
-  font-size: 14px;   /* hv と同じ */
-  margin-bottom: 4px;
-}
-
-body[data-orientation="landscape"] .products.horizontal .product-price {
-  font-size: 13px;
-  margin-bottom: 6px;
-}
-
-body[data-orientation="landscape"] .products.horizontal .product-actions {
-  gap: 4px;
-}
-
-body[data-orientation="landscape"] .products.horizontal .qty-label {
-  font-size: 13px;
-}
-
-body[data-orientation="landscape"] .products.horizontal .qty-btn {
-  padding: 4px 8px;
-  font-size: 16px;
-}
-
-body[data-orientation="landscape"] .products.horizontal .qty-value {
-  font-size: 14px;
 }
