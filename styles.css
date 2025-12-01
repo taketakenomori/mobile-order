@@ -301,17 +301,35 @@ body[data-orientation="landscape"] .cartbar .primary {
   min-height: 34px;
 }
 
-/* 横画面では商品カードもコンパクトに */
+/* 横画面時のカードをさらにコンパクトに */
 body[data-orientation="landscape"] .product-card {
-  padding: 6px;
+  padding: 4px;          /* 6px → 4px に */
+  overflow: hidden;      /* 枠からはみ出した分はカード内でカット */
 }
+
 body[data-orientation="landscape"] .product-name {
-  font-size: 12px;
+  font-size: 11px;       /* 12 → 11 */
+  margin-bottom: 2px;    /* 余白も少し削る */
 }
+
 body[data-orientation="landscape"] .product-price {
-  font-size: 11px;
+  font-size: 10px;       /* 11 → 10 */
+  margin-bottom: 2px;
 }
+
+body[data-orientation="landscape"] .product-actions {
+  gap: 2px;              /* ラベルとカウンターの間も少しだけ詰める */
+}
+
+body[data-orientation="landscape"] .qty-label {
+  font-size: 11px;       /* 数量ラベルも小さめに */
+}
+
 body[data-orientation="landscape"] .qty-btn {
-  padding: 2px 6px;
-  font-size: 13px;
+  padding: 1px 4px;      /* 2px 6px → 1px 4px に */
+  font-size: 12px;       /* 13 → 12 */
+}
+
+body[data-orientation="landscape"] .qty-value {
+  font-size: 12px;
 }
