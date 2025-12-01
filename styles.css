@@ -3,9 +3,12 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* 🔹 ページ全体は常に 100% 高さ & スクロール禁止 */
 html, body {
   margin: 0;
   padding: 0;
+  height: 100%;
+  overflow: hidden;  /* ← ブラウザ全体のスクロールを完全に止める */
   font-family: system-ui, -apple-system, "Segoe UI", Roboto,
                "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
   background: #fafafa;
@@ -13,7 +16,7 @@ html, body {
   -webkit-text-size-adjust: 100%;
 }
 
-/* 上部バー */
+/* 上部バー（常に画面上部に見える） */
 .topbar {
   position: sticky;
   top: 0;
@@ -27,15 +30,22 @@ html, body {
   font-size: 18px;
 }
 
-/* 画面本体 */
+/* 画面本体：常に画面高さからトップバーぶんを引いたサイズに固定 */
 main {
+  height: calc(100% - 44px); /* トップバーの高さをざっくり 44px と仮定 */
   padding: 8px 12px calc(80px + env(safe-area-inset-bottom));
+  overflow: hidden;           /* main 自体はスクロールしない */
 }
 
-/* 注文画面のときだけ main をロックして高さを固定＆スクロール禁止 */
-main.menu-locked {
-  height: calc(100vh - 44px);  /* トップバーぶん差し引き（目安） */
+/* 画面切り替えの基本：各 screen が main 全体を占める */
+.screen {
+  display: none;
+  height: 100%;
   overflow: hidden;
+}
+.screen.active {
+  display: flex;
+  flex-direction: column;
 }
 
 h2 {
@@ -43,30 +53,14 @@ h2 {
   font-size: 18px;
 }
 
-/* 画面切り替えの基本 */
-.screen {
-  display: none;
-}
-.screen.active {
-  display: block;
+/* ---------- Intro 画面 ---------- */
+
+/* Intro 画面全体を「内部スクロール」可能にする */
+#screenIntro {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* メニュー画面は flex で縦に積む */
-.screen.active#screenMenu {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-#screenMenu h2 {
-  margin: 4px 0;
-}
-
-#screenMenu p.muted.small {
-  margin: 0 0 4px;
-}
-
-/* カード・フォーム類 */
 .card {
   background: #fff;
   border-radius: 12px;
@@ -109,6 +103,23 @@ h2 {
 }
 .small {
   font-size: 12px;
+}
+
+/* ---------- Menu 画面 ---------- */
+
+/* メニュー画面も main 全体を占める */
+#screenMenu {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+#screenMenu h2 {
+  margin: 4px 0;
+}
+
+#screenMenu p.muted.small {
+  margin: 0 0 4px;
 }
 
 /* 商品グリッド全体（メニュー部分） */
@@ -228,7 +239,7 @@ body[data-orientation="landscape"] .products.horizontal {
   background: #fff;
   border-top: 1px solid #eee;
   display: flex;
-  justify-content: space-between;
+  justify-content: space_between;
   align-items: center;
   z-index: 20;
 }
@@ -236,7 +247,14 @@ body[data-orientation="landscape"] .products.horizontal {
   font-size: 14px;
 }
 
-/* 結果表示 */
+/* ---------- 結果画面 ---------- */
+
+/* 結果画面全体も「内部スクロール」 */
+#screenResult {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .jsonbox {
   margin-top: 8px;
   white-space: pre-wrap;
@@ -291,20 +309,4 @@ body[data-orientation="landscape"] .product-price {
 body[data-orientation="landscape"] .qty-btn {
   padding: 2px 6px;
   font-size: 13px;
-}
-
-/* ===== メニュー中だけ body のスクロールも止める ===== */
-body.no-scroll {
-  overflow: hidden;
-  height: 100%;
-}
-
-  font-size: 13px;
-}
-
-/* イントロ画面：ページ全体は固定して、イントロセクション内だけ縦スクロール可にする */
-.screen.active#screenIntro {
-  max-height: calc(100vh - 44px); /* トップバー分をざっくり引いた高さ */
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
 }
