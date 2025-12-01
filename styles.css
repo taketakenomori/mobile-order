@@ -301,38 +301,34 @@ body[data-orientation="landscape"] .cartbar .primary {
   min-height: 34px;
 }
 
-/* 横画面 + 横スクロール（hh）のときだけカードをコンパクトに */
+/* ★ hh（横画面 × 横スクロール）の文字サイズを hv と同じに戻す */
 body[data-orientation="landscape"] .products.horizontal .product-card {
-  padding: 4px;          /* 6px → 4px に */
-  overflow: hidden;      /* 枠からはみ出した分はカード内でカット */
+  padding: 8px;      /* 元のサイズ */
 }
 
 body[data-orientation="landscape"] .products.horizontal .product-name {
-  font-size: 11px;       /* 12 → 11 */
-  margin-bottom: 2px;    /* 余白も少し削る */
+  font-size: 14px;   /* hv と同じ */
+  margin-bottom: 4px;
 }
 
 body[data-orientation="landscape"] .products.horizontal .product-price {
-  font-size: 10px;       /* 11 → 10 */
-  margin-bottom: 2px;
+  font-size: 13px;
+  margin-bottom: 6px;
 }
 
 body[data-orientation="landscape"] .products.horizontal .product-actions {
-  gap: 2px;              /* ラベルとカウンターの間も少しだけ詰める */
+  gap: 4px;
 }
 
 body[data-orientation="landscape"] .products.horizontal .qty-label {
-  font-size: 11px;       /* 数量ラベルも小さめに */
+  font-size: 13px;
 }
 
 body[data-orientation="landscape"] .products.horizontal .qty-btn {
-  padding: 1px 4px;      /* 2px 6px → 1px 4px に */
-  font-size: 12px;       /* 13 → 12 */
+  padding: 4px 8px;
+  font-size: 16px;
 }
 
 body[data-orientation="landscape"] .products.horizontal .qty-value {
-  font-size: 12px;
-}
-
-  font-size: 12px;
+  font-size: 14px;
 }
