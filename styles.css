@@ -32,8 +32,8 @@ html, body {
 
 /* 画面本体：常に画面高さからトップバーぶんを引いたサイズに固定 */
 main {
-  height: calc(100% - 44px); /* トップバーの高さをざっくり 44px と仮定 */
-  padding: 8px 12px calc(80px + env(safe-area-inset-bottom));
+  height: calc(100% - 44px);
+  padding: 8px 12px 8px;   /* ← 下はシンプルに 8px に */
   overflow: hidden;           /* main 自体はスクロールしない */
 }
 
@@ -178,7 +178,7 @@ body[data-orientation="landscape"] .products.horizontal {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: calc(33.333% - 5px); /* 3列相当 */
-  grid-template-rows: repeat(2, auto);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -244,7 +244,7 @@ body[data-orientation="landscape"] .products.horizontal {
   background: #fff;
   border-top: 1px solid #eee;
   display: flex;
-  justify-content: space_between;
+  justify-content: space-between;  /* ← 正しい指定 */
   align-items: center;
   z-index: 20;
 }
