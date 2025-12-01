@@ -78,7 +78,6 @@ const MENUS = {
   ]
 };
 
-const $ = (s) => document.querySelector(s);
 const byId = (id) => document.getElementById(id);
 
 // 条件ラベル
@@ -149,80 +148,111 @@ function parseConditionFromURL() {
   byId("condLabel").textContent = CONDITION_LABELS[cond] || cond;
 }
 
-// 商品カード生成（currentProducts を使う）
+// カードDOMを1つ作るヘルパー
+function createProductCard(p) {
+  STATE.quantities[p.id] = STATE.quantities[p.id] ?? 0;
+
+  const card = document.createElement("div");
+  card.className = "product-card";
+
+  const nameEl = document.createElement("div");
+  nameEl.className = "product-name";
+  nameEl.textContent = p.name;
+
+  const priceEl = document.createElement("div");
+  priceEl.className = "product-price";
+  priceEl.textContent = `¥${p.price.toLocaleString()}`;
+
+  const actions = document.createElement("div");
+  actions.className = "product-actions";
+
+  const qtyLabel = document.createElement("span");
+  qtyLabel.className = "qty-label";
+  qtyLabel.textContent = "数量";
+
+  const controls = document.createElement("div");
+  controls.className = "qty-controls";
+
+  const btnMinus = document.createElement("button");
+  btnMinus.type = "button";
+  btnMinus.className = "qty-btn";
+  btnMinus.textContent = "−";
+
+  const qtyVal = document.createElement("span");
+  qtyVal.className = "qty-value";
+  qtyVal.textContent = String(STATE.quantities[p.id] || 0);
+
+  const btnPlus = document.createElement("button");
+  btnPlus.type = "button";
+  btnPlus.className = "qty-btn";
+  btnPlus.textContent = "+";
+
+  controls.appendChild(btnMinus);
+  controls.appendChild(qtyVal);
+  controls.appendChild(btnPlus);
+
+  actions.appendChild(qtyLabel);
+  actions.appendChild(controls);
+
+  card.appendChild(nameEl);
+  card.appendChild(priceEl);
+  card.appendChild(actions);
+
+  // 数量変更イベント
+  btnMinus.addEventListener("click", () => {
+    const current = STATE.quantities[p.id] || 0;
+    const next = Math.max(0, current - 1);
+    STATE.quantities[p.id] = next;
+    qtyVal.textContent = String(next);
+    refreshCartSummary();
+  });
+
+  btnPlus.addEventListener("click", () => {
+    const current = STATE.quantities[p.id] || 0;
+    const next = current + 1;
+    STATE.quantities[p.id] = next;
+    qtyVal.textContent = String(next);
+    refreshCartSummary();
+  });
+
+  return card;
+}
+
+// 商品カード生成（条件に応じて「ページ」も作る）
 function buildProductCards() {
   const container = byId("productArea");
   container.innerHTML = "";
   STATE.quantities = {};
 
-  STATE.currentProducts.forEach(p => {
-    STATE.quantities[p.id] = 0;
+  const isHorizontal = STATE.scrollDir === "horizontal";
+  const products = STATE.currentProducts;
 
-    const card = document.createElement("div");
-    card.className = "product-card";
-
-    const nameEl = document.createElement("div");
-    nameEl.className = "product-name";
-    nameEl.textContent = p.name;
-
-    const priceEl = document.createElement("div");
-    priceEl.className = "product-price";
-    priceEl.textContent = `¥${p.price.toLocaleString()}`;
-
-    const actions = document.createElement("div");
-    actions.className = "product-actions";
-
-    const qtyLabel = document.createElement("span");
-    qtyLabel.className = "qty-label";
-    qtyLabel.textContent = "数量";
-
-    const controls = document.createElement("div");
-    controls.className = "qty-controls";
-
-    const btnMinus = document.createElement("button");
-    btnMinus.type = "button";
-    btnMinus.className = "qty-btn";
-    btnMinus.textContent = "−";
-
-    const qtyVal = document.createElement("span");
-    qtyVal.className = "qty-value";
-    qtyVal.textContent = "0";
-
-    const btnPlus = document.createElement("button");
-    btnPlus.type = "button";
-    btnPlus.className = "qty-btn";
-    btnPlus.textContent = "+";
-
-    controls.appendChild(btnMinus);
-    controls.appendChild(qtyVal);
-    controls.appendChild(btnPlus);
-
-    actions.appendChild(qtyLabel);
-    actions.appendChild(controls);
-
-    card.appendChild(nameEl);
-    card.appendChild(priceEl);
-    card.appendChild(actions);
-
-    // 数量変更イベント
-    btnMinus.addEventListener("click", () => {
-      const current = STATE.quantities[p.id] || 0;
-      const next = Math.max(0, current - 1);
-      STATE.quantities[p.id] = next;
-      qtyVal.textContent = String(next);
-      refreshCartSummary();
+  if (!isHorizontal) {
+    // 🔹 縦スクロール条件（vv / hv）：普通にグリッドに並べる
+    products.forEach(p => {
+      const card = createProductCard(p);
+      container.appendChild(card);
     });
+  } else {
+    // 🔹 横スクロール条件（vh / hh）：ページ分割
+    // portrait: 2×4 = 8 / page, landscape: 3×3 = 9 / page
+    const perPage = (STATE.orientation === "portrait") ? 8 : 9;
 
-    btnPlus.addEventListener("click", () => {
-      const current = STATE.quantities[p.id] || 0;
-      const next = current + 1;
-      STATE.quantities[p.id] = next;
-      qtyVal.textContent = String(next);
-      refreshCartSummary();
+    let pageEl = null;
+    products.forEach((p, idx) => {
+      if (idx % perPage === 0) {
+        pageEl = document.createElement("div");
+        pageEl.className = "page";
+        container.appendChild(pageEl);
+      }
+      const card = createProductCard(p);
+      pageEl.appendChild(card);
     });
+  }
 
-    container.appendChild(card);
-  });
+  // 念のためスクロール位置リセット
+  container.scrollLeft = 0;
+  container.scrollTop = 0;
 }
 
 // カート表示更新
@@ -238,16 +268,12 @@ function refreshCartSummary() {
   byId("totalAmount").textContent = "¥" + total.toLocaleString();
 }
 
-// 画面切り替え（スクロールロックは CSS 側で完結）
+// 画面切り替え
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(el => el.classList.remove("active"));
-  byId(id).classList.add("active");
-
-  // 念のため、各画面切り替え時にセクション内のスクロール位置をリセット
   const active = byId(id);
-  if (active) {
-    active.scrollTop = 0;
-  }
+  active.classList.add("active");
+  active.scrollTop = 0;
 }
 
 // 実験開始
@@ -255,6 +281,10 @@ function startExperiment() {
   STATE.participantId = byId("participantId").value.trim();
   STATE.startTime = new Date();
   showScreen("screenMenu");
+
+  const productArea = byId("productArea");
+  productArea.scrollTop = 0;
+  productArea.scrollLeft = 0;
 }
 
 // 会計（終了処理）
@@ -288,7 +318,6 @@ function finishExperiment() {
     total_amount: total
   };
 
-  // フォーム用テキストだけ生成
   const durationSec = (payload.duration_ms / 1000).toFixed(1);
   const label = CONDITION_LABELS[payload.condition] || "";
 
@@ -339,4 +368,3 @@ window.addEventListener("DOMContentLoaded", () => {
   byId("btnCheckout").addEventListener("click", finishExperiment);
   byId("btnCopyText").addEventListener("click", copyText);
 });
-
