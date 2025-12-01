@@ -307,3 +307,38 @@ body[data-orientation="portrait"] .products.horizontal,
 body[data-orientation="landscape"] .products.horizontal {
   grid-template-columns: none;  /* 縦スク用の 2列/3列指定を解除 */
 }
+
+/* ===== 横画面のときはカードをかなり“ぺたんこ”にする ===== */
+body[data-orientation="landscape"] .product-card {
+  aspect-ratio: 5 / 2;       /* 横:縦 = 5:2 くらいにしてかなり低くする */
+  padding: 4px;              /* 余白も少し削る */
+}
+
+body[data-orientation="landscape"] .product-name {
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+body[data-orientation="landscape"] .product-price {
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+
+body[data-orientation="landscape"] .qty-label {
+  font-size: 11px;
+}
+
+body[data-orientation="landscape"] .qty-btn {
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+body[data-orientation="landscape"] .qty-value {
+  font-size: 12px;
+}
+
+/* 横画面では縦方向は 3 行くらいで均等に割るイメージ */
+body[data-orientation="landscape"] .products.vertical,
+body[data-orientation="landscape"] .products.horizontal {
+  grid-auto-rows: minmax(0, 1fr);
+}
