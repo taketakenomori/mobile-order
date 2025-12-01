@@ -247,12 +247,20 @@ function showScreen(id) {
   const mainEl = document.querySelector("main");
   const body = document.body;
 
+  // 画面切り替え時に、念のためスクロール位置をリセット
+  window.scrollTo(0, 0);
+  mainEl.scrollTop = 0;
+
   if (id === "screenMenu") {
     // 注文画面：main と body のスクロールをロック
     mainEl.classList.add("menu-locked");
     body.classList.add("no-scroll");
+  } else if (id === "screenIntro") {
+    // イントロ画面：body だけロック（#screenIntro 内をスクロール）
+    mainEl.classList.remove("menu-locked");
+    body.classList.add("no-scroll");
   } else {
-    // それ以外の画面：ロック解除
+    // 結果画面など：ロック解除（ページ全体スクロールOK）
     mainEl.classList.remove("menu-locked");
     body.classList.remove("no-scroll");
   }
