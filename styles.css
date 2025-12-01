@@ -195,7 +195,7 @@ body[data-orientation="landscape"] .products.horizontal {
   justify-content: space-between;
 
   /* ★ 全条件でカードの形を統一（だいたい 3:4 の縦長） */
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 4 / 3; 
 }
 
 .product-name {
@@ -300,4 +300,10 @@ body[data-orientation="landscape"] .cartbar .primary {
   padding: 6px 10px;
   font-size: 13px;
   min-height: 34px;
+}
+
+/* ★ 横スク条件では、共通の列指定をリセットしてレイアウト崩れを防ぐ */
+body[data-orientation="portrait"] .products.horizontal,
+body[data-orientation="landscape"] .products.horizontal {
+  grid-template-columns: none;  /* 縦スク用の 2列/3列指定を解除 */
 }
