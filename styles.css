@@ -33,7 +33,7 @@ html, body {
 /* 画面本体：常に画面高さからトップバーぶんを引いたサイズに固定 */
 main {
   height: calc(100% - 44px);      /* トップバーぶんをざっくり引く */
-  padding: 8px 12px 8px;          /* 下もシンプルな余白 */
+  padding: 8px 12px 8px;
   overflow: hidden;               /* main 自体はスクロールしない */
 }
 
@@ -107,22 +107,9 @@ h2 {
 
 /* ---------- Menu 画面 ---------- */
 
-/* メニュー画面も main 全体を占める */
-#screenMenu {
-  /* display はここでは指定しない（.screen / .screen.active に任せる） */
-}
-
-/* アクティブなときだけ、flexレイアウト＋高さ100% にする */
-.screen.active#screenMenu {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
 #screenMenu h2 {
   margin: 4px 0;
 }
-
 #screenMenu p.muted.small {
   margin: 0 0 4px;
 }
@@ -132,56 +119,55 @@ h2 {
   margin-top: 6px;
   flex: 1;                 /* 上の説明と下のカートの間を全部使う */
   min-height: 0;
-  padding-bottom: 60px;    /* 下のカートバーぶんの余白 */
+  padding-bottom: 70px;    /* 下のカートバーぶんの余白（少し余裕） */
   -webkit-overflow-scrolling: touch;
 }
 
-/* 縦スクロール：overflow-y */
+/* 🔹 縦スクロール条件（vv / hv） */
 .products.vertical {
+  display: grid;
+  gap: 8px;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
-/* 横スクロール：overflow-x */
-.products.horizontal {
-  overflow-x: auto;
-  overflow-y: hidden;  /* 横スク時は縦スクなしにして軸をはっきりさせる */
+/* 縦スク：縦画面 → 2列 */
+body[data-orientation="portrait"] .products.vertical {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-/* 共通のグリッド設定（列数は向きごとに切り替え） */
-.products {
-  display: grid;
-  gap: 8px;
-}
-
-/* 🔹 縦画面：2列ベース（vv / vh 共通） */
-body[data-orientation="portrait"] .products {
-  grid-template-columns: repeat(2, minmax(0, 1fr));  /* 2列 */
-}
-
-/* 縦画面 + 横スクロール（vh）：2列×4行ベースの横送り */
-body[data-orientation="portrait"] .products.horizontal {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: calc(50% - 4px); /* 2列相当 */
-  /* ★ 行の高さはカードの高さに任せる（grid-template-rows は指定しない） */
-  gap: 8px;
-}
-
-/* 🔹 横画面：3列ベース（hv / hh 共通） */
+/* 縦スク：横画面 → 3列 */
 body[data-orientation="landscape"] .products.vertical {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* 🔹 横スクロール条件（vh / hh） */
+/* コンテナは横スク用のフレックスコンテナにする */
+.products.horizontal {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  overflow-y: hidden;
+  gap: 0;                 /* ページ間の隙間はとりあえず無し */
+}
+
+/* 各「ページ」：画面1枚ぶんの幅で固定 */
+.products.horizontal .page {
+  flex: 0 0 100%;         /* 1ページ = コンテナ幅いっぱい */
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));  /* 3列 */
   gap: 8px;
 }
 
-/* 横画面 + 横スクロール（hh）：3列×3行ベースの横送り */
-body[data-orientation="landscape"] .products.horizontal {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: calc(33.333% - 5px);        /* 1ページぶんの幅（3列相当） */
-  gap: 8px;
-  overflow-y: hidden;
+/* 縦画面（vh）：1ページ = 2列×4行 */
+body[data-orientation="portrait"] .products.horizontal .page {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+}
+
+/* 横画面（hh）：1ページ = 3列×3行 */
+body[data-orientation="landscape"] .products.horizontal .page {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
 }
 
 /* 商品カード */
@@ -189,13 +175,11 @@ body[data-orientation="landscape"] .products.horizontal {
   background: #fff;
   border-radius: 10px;
   border: 1px solid #e5e5e5;
-  padding: 8px;
+  padding: 6px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-
-  /* ★ 全条件でカードの形を統一（だいたい 3:4 の縦長） */
-  aspect-ratio: 4 / 3; 
+  overflow: hidden;   /* はみ出し対策 */
 }
 
 .product-name {
@@ -232,6 +216,29 @@ body[data-orientation="landscape"] .products.horizontal {
   min-width: 18px;
   text-align: center;
   font-size: 14px;
+}
+
+/* 🔹 横画面のときはカードを少しコンパクトにする */
+body[data-orientation="landscape"] .product-card {
+  padding: 4px;
+}
+body[data-orientation="landscape"] .product-name {
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+body[data-orientation="landscape"] .product-price {
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+body[data-orientation="landscape"] .qty-label {
+  font-size: 11px;
+}
+body[data-orientation="landscape"] .qty-btn {
+  padding: 2px 6px;
+  font-size: 12px;
+}
+body[data-orientation="landscape"] .qty-value {
+  font-size: 12px;
 }
 
 /* カートバー */
@@ -295,50 +302,8 @@ body[data-orientation="landscape"] .cartbar {
 body[data-orientation="landscape"] .cartinfo {
   font-size: 11px;
 }
-/* 横画面の「会計へ」ボタンも少し小さめに */
 body[data-orientation="landscape"] .cartbar .primary {
   padding: 6px 10px;
   font-size: 13px;
   min-height: 34px;
-}
-
-/* ★ 横スク条件では、共通の列指定をリセットしてレイアウト崩れを防ぐ */
-body[data-orientation="portrait"] .products.horizontal,
-body[data-orientation="landscape"] .products.horizontal {
-  grid-template-columns: none;  /* 縦スク用の 2列/3列指定を解除 */
-}
-
-/* ===== 横画面のときはカードをかなり“ぺたんこ”にする ===== */
-body[data-orientation="landscape"] .product-card {
-  aspect-ratio: 5 / 2;       /* 横:縦 = 5:2 くらいにしてかなり低くする */
-  padding: 4px;              /* 余白も少し削る */
-}
-
-body[data-orientation="landscape"] .product-name {
-  font-size: 12px;
-  margin-bottom: 2px;
-}
-
-body[data-orientation="landscape"] .product-price {
-  font-size: 11px;
-  margin-bottom: 2px;
-}
-
-body[data-orientation="landscape"] .qty-label {
-  font-size: 11px;
-}
-
-body[data-orientation="landscape"] .qty-btn {
-  padding: 2px 6px;
-  font-size: 12px;
-}
-
-body[data-orientation="landscape"] .qty-value {
-  font-size: 12px;
-}
-
-/* 横画面では縦方向は 3 行くらいで均等に割るイメージ */
-body[data-orientation="landscape"] .products.vertical,
-body[data-orientation="landscape"] .products.horizontal {
-  grid-auto-rows: minmax(0, 1fr);
 }
