@@ -302,3 +302,9 @@ body.no-scroll {
   font-size: 13px;
 }
 
+/* イントロ画面：ページ全体は固定して、イントロセクション内だけ縦スクロール可にする */
+.screen.active#screenIntro {
+  max-height: calc(100vh - 44px); /* トップバー分をざっくり引いた高さ */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
