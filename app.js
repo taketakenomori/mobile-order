@@ -236,7 +236,9 @@ function buildProductCards() {
     });
   } else {
     // 🔹 vh / hh：カードサイズは同じまま、ページ単位に分けて横スライド
-    const perPage = (STATE.orientation === "portrait") ? 8 : 9; // 2×4 / 3×3 目安
+    // portrait: 2列×5行 ≒ 10枚 / page
+    // landscape: 3列×4行 ≒ 12枚 / page
+    const perPage = (STATE.orientation === "portrait") ? 10 : 12;
     let page = null;
     STATE.currentProducts.forEach((p, index) => {
       if (index % perPage === 0) {
