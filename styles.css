@@ -55,7 +55,6 @@ h2 {
 
 /* ---------- Intro 画面 ---------- */
 
-/* Intro 画面全体を「内部スクロール」可能にする */
 #screenIntro {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -117,9 +116,9 @@ h2 {
 /* 商品グリッド全体（メニュー部分） */
 .products {
   margin-top: 6px;
-  flex: 1;                 /* 上の説明と下のカートの間を全部使う */
+  flex: 1;
   min-height: 0;
-  padding-bottom: 70px;    /* 下のカートバーぶんの余白（少し余裕） */
+  padding-bottom: 70px;    /* 下のカートバーぶんの余白 */
   -webkit-overflow-scrolling: touch;
 }
 
@@ -128,27 +127,17 @@ h2 {
    ================================ */
 
 .products.vertical {
-  display: grid;
-  gap: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
   overflow-y: auto;
   overflow-x: hidden;
-}
-
-/* 縦画面：2列（vv） */
-body[data-orientation="portrait"] .products.vertical {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-/* 横画面：3列（hv） */
-body[data-orientation="landscape"] .products.vertical {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 /* ================================
    🔹 横スクロール条件（vh / hh）
    ================================ */
 
-/* コンテナは横スク用のフレックスコンテナにする */
 .products.horizontal {
   display: flex;
   flex-direction: row;
@@ -156,36 +145,36 @@ body[data-orientation="landscape"] .products.vertical {
   overflow-y: hidden;
 }
 
-/* ページ単位のラッパー（ここでも grid を使う） */
+/* ページ単位のラッパー：中身のカードの並べ方は vertical と同じ */
 .products.horizontal .page {
-  flex: 0 0 100%;         /* 1ページ = コンテナ幅いっぱい */
-  display: grid;
-  gap: 8px;
+  flex: 0 0 100%;           /* 1ページ = コンテナ幅いっぱい */
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
 }
 
-/* vh / hh でもカードサイズは vertical と同じにするため、
-   列数は orientation のみで決める */
+/* 🔹 カードサイズは「画面の向きだけ」で決める */
 
-body[data-orientation="portrait"] .products.horizontal .page {
-  /* portrait：2列（vv と同じ幅） */
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+/* 縦画面：2列になる幅（vv / vh 共通） */
+body[data-orientation="portrait"] .product-card {
+  width: 50%;
 }
 
-body[data-orientation="landscape"] .products.horizontal .page {
-  /* landscape：3列（hv と同じ幅） */
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+/* 横画面：3列になる幅（hv / hh 共通） */
+body[data-orientation="landscape"] .product-card {
+  width: 33.3333%;
 }
 
-/* 商品カード共通（向き以外で変えない） */
+/* 商品カード共通デザイン（向き以外は同じ） */
 .product-card {
   background: #fff;
   border-radius: 10px;
   border: 1px solid #e5e5e5;
-  padding: 6px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  overflow: hidden;   /* はみ出し対策 */
+  overflow: hidden;
 }
 
 .product-name {
@@ -224,9 +213,9 @@ body[data-orientation="landscape"] .products.horizontal .page {
   font-size: 14px;
 }
 
-/* 🔹 横画面のときは少しだけコンパクトに（hv / hh 共通） */
+/* 🔹 横画面は少しだけコンパクトに（hv / hh 共通） */
 body[data-orientation="landscape"] .product-card {
-  padding: 4px;
+  padding: 6px;
 }
 body[data-orientation="landscape"] .product-name {
   font-size: 12px;
@@ -236,14 +225,8 @@ body[data-orientation="landscape"] .product-price {
   font-size: 11px;
   margin-bottom: 2px;
 }
-body[data-orientation="landscape"] .product-actions {
-  gap: 2px;
-}
 body[data-orientation="landscape"] .qty-label {
   font-size: 11px;
-}
-body[data-orientation="landscape"] .qty-controls {
-  gap: 2px;
 }
 body[data-orientation="landscape"] .qty-btn {
   padding: 2px 6px;
@@ -274,7 +257,6 @@ body[data-orientation="landscape"] .qty-value {
 
 /* ---------- 結果画面 ---------- */
 
-/* 結果画面全体も「内部スクロール」 */
 #screenResult {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -290,15 +272,13 @@ body[data-orientation="landscape"] .qty-value {
   border: 1px solid #eee;
 }
 
-/* ===== 横画面用の調整 ===== */
+/* ===== 横画面用の補正 ===== */
 
-/* 横画面のときはメニュー画面の見出し・説明文を消す（縦方向を広く使う） */
 body[data-orientation="landscape"] #screenMenu h2,
 body[data-orientation="landscape"] #screenMenu p.muted.small {
   display: none;
 }
 
-/* 横画面ではトップバーも少し薄く・文字小さく */
 body[data-orientation="landscape"] .topbar {
   padding: 4px 8px;
 }
@@ -306,7 +286,6 @@ body[data-orientation="landscape"] .topbar h1 {
   font-size: 14px;
 }
 
-/* 横画面ではカートバーも少し薄くする */
 body[data-orientation="landscape"] .cartbar {
   padding: 4px 8px;
   padding-bottom: calc(4px + env(safe-area-inset-bottom));
