@@ -310,3 +310,10 @@ body[data-orientation="landscape"] .cartbar .primary {
   font-size: 13px;
   min-height: 34px;
 }
+
+/* 🔹 縦画面でも会計ボタンを少し小さめにする */
+body[data-orientation="portrait"] .cartbar .primary {
+  padding: 6px 10px;
+  font-size: 13px;
+  min-height: 34px;
+}
