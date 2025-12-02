@@ -233,10 +233,14 @@ function buildProductCards() {
       const card = createProductCard(p);
       container.appendChild(card);
     });
-   } else {
+     } else {
     // 🔹 横スクロール条件（vh / hh）：ページ分割
-    // portrait: 2×4 = 8 / page, landscape: 3×3 = 9 / page
+    // portrait: 2列×4行 ≒ 8枚 / page
+    // landscape: 3列×3行 ≒ 9枚 / page
     const perPage = (STATE.orientation === "portrait") ? 8 : 9;
+    ...
+  }
+
 
     let pageEl = null;
     products.forEach((p, idx) => {
