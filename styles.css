@@ -123,54 +123,60 @@ h2 {
   -webkit-overflow-scrolling: touch;
 }
 
-/* 🔹 縦スクロール条件（vv / hv） */
+/* ================================
+   🔹 縦スクロール条件（vv / hv）
+   ================================ */
+
 .products.vertical {
-  display: grid;
-  gap: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
-/* 縦スク：縦画面 → 2列 */
-body[data-orientation="portrait"] .products.vertical {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+/* 縦画面：2列 */
+body[data-orientation="portrait"] .products.vertical .product-card {
+  width: 50%;
 }
 
-/* 縦スク：横画面 → 3列 */
-body[data-orientation="landscape"] .products.vertical {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+/* 横画面：3列 */
+body[data-orientation="landscape"] .products.vertical .product-card {
+  width: 33.3333%;
 }
 
-/* 🔹 横スクロール条件（vh / hh） */
+/* ================================
+   🔹 横スクロール条件（vh / hh）
+   ================================ */
+
 /* コンテナは横スク用のフレックスコンテナにする */
 .products.horizontal {
   display: flex;
   flex-direction: row;
   overflow-x: auto;
   overflow-y: hidden;
-  gap: 0;                 /* ページ間の隙間はとりあえず無し */
 }
 
-/* 各「ページ」：画面1枚ぶんの幅で固定 */
+/* ページ単位のラッパー */
 .products.horizontal .page {
   flex: 0 0 100%;         /* 1ページ = コンテナ幅いっぱい */
   display: grid;
   gap: 8px;
 }
 
-/* 縦画面（vh）：1ページ = 2列×4行 */
+/* 縦画面（vh）：1ページ = 2列×3行（6品 / page） */
 body[data-orientation="portrait"] .products.horizontal .page {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
 }
 
-/* 横画面（hh）：1ページ = 3列×3行 */
+/* 横画面（hh）：1ページ = 3列×3行（9品 / page） */
 body[data-orientation="landscape"] .products.horizontal .page {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: repeat(3, minmax(0, 1fr));
 }
 
-/* 商品カード */
+/* 商品カード共通 */
 .product-card {
   background: #fff;
   border-radius: 10px;
@@ -218,7 +224,7 @@ body[data-orientation="landscape"] .products.horizontal .page {
   font-size: 14px;
 }
 
-/* 🔹 横画面のときはカードを少しコンパクトにする */
+/* 🔹 横画面のときはカードをさらにコンパクトに（hh の見切れ対策） */
 body[data-orientation="landscape"] .product-card {
   padding: 4px;
 }
@@ -230,8 +236,14 @@ body[data-orientation="landscape"] .product-price {
   font-size: 11px;
   margin-bottom: 2px;
 }
+body[data-orientation="landscape"] .product-actions {
+  gap: 2px;
+}
 body[data-orientation="landscape"] .qty-label {
   font-size: 11px;
+}
+body[data-orientation="landscape"] .qty-controls {
+  gap: 2px;
 }
 body[data-orientation="landscape"] .qty-btn {
   padding: 2px 6px;
@@ -307,3 +319,4 @@ body[data-orientation="landscape"] .cartbar .primary {
   font-size: 13px;
   min-height: 34px;
 }
+
