@@ -128,21 +128,20 @@ h2 {
    ================================ */
 
 .products.vertical {
-  display: flex;
-  flex-wrap: wrap;
-  align-content: flex-start;
+  display: grid;
+  gap: 8px;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
-/* 縦画面：2列 */
-body[data-orientation="portrait"] .products.vertical .product-card {
-  width: 50%;
+/* 縦画面：2列（vv） */
+body[data-orientation="portrait"] .products.vertical {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-/* 横画面：3列 */
-body[data-orientation="landscape"] .products.vertical .product-card {
-  width: 33.3333%;
+/* 横画面：3列（hv） */
+body[data-orientation="landscape"] .products.vertical {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 /* ================================
@@ -157,26 +156,27 @@ body[data-orientation="landscape"] .products.vertical .product-card {
   overflow-y: hidden;
 }
 
-/* ページ単位のラッパー */
+/* ページ単位のラッパー（ここでも grid を使う） */
 .products.horizontal .page {
   flex: 0 0 100%;         /* 1ページ = コンテナ幅いっぱい */
   display: grid;
   gap: 8px;
 }
 
-/* 縦画面（vh）：1ページ = 2列×3行（6品 / page） */
+/* vh / hh でもカードサイズは vertical と同じにするため、
+   列数は orientation のみで決める */
+
 body[data-orientation="portrait"] .products.horizontal .page {
+  /* portrait：2列（vv と同じ幅） */
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: repeat(3, minmax(0, 1fr));
 }
 
-/* 横画面（hh）：1ページ = 3列×3行（9品 / page） */
 body[data-orientation="landscape"] .products.horizontal .page {
+  /* landscape：3列（hv と同じ幅） */
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: repeat(3, minmax(0, 1fr));
 }
 
-/* 商品カード共通 */
+/* 商品カード共通（向き以外で変えない） */
 .product-card {
   background: #fff;
   border-radius: 10px;
@@ -224,7 +224,7 @@ body[data-orientation="landscape"] .products.horizontal .page {
   font-size: 14px;
 }
 
-/* 🔹 横画面のときはカードをさらにコンパクトに（hh の見切れ対策） */
+/* 🔹 横画面のときは少しだけコンパクトに（hv / hh 共通） */
 body[data-orientation="landscape"] .product-card {
   padding: 4px;
 }
@@ -319,4 +319,3 @@ body[data-orientation="landscape"] .cartbar .primary {
   font-size: 13px;
   min-height: 34px;
 }
-
