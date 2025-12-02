@@ -78,6 +78,7 @@ const MENUS = {
   ]
 };
 
+const $ = (s) => document.querySelector(s);
 const byId = (id) => document.getElementById(id);
 
 // 条件ラベル
@@ -141,17 +142,17 @@ function parseConditionFromURL() {
 
   // products のスクロール方向クラスを付与
   const productArea = byId("productArea");
-  productArea.classList.remove("vertical", "horizontal");
-  productArea.classList.add(scrollDir);
+  productArea.className = "products " + scrollDir;
 
   // スタート画面の条件ラベル
-  byId("condLabel").textContent = CONDITION_LABELS[cond] || cond;
+  const labelEl = byId("condLabel");
+  if (labelEl) {
+    labelEl.textContent = CONDITION_LABELS[cond] || cond;
+  }
 }
 
-// カードDOMを1つ作るヘルパー
+// 商品カード生成のヘルパー
 function createProductCard(p) {
-  STATE.quantities[p.id] = STATE.quantities[p.id] ?? 0;
-
   const card = document.createElement("div");
   card.className = "product-card";
 
@@ -180,7 +181,7 @@ function createProductCard(p) {
 
   const qtyVal = document.createElement("span");
   qtyVal.className = "qty-value";
-  qtyVal.textContent = String(STATE.quantities[p.id] || 0);
+  qtyVal.textContent = "0";
 
   const btnPlus = document.createElement("button");
   btnPlus.type = "button";
@@ -197,6 +198,9 @@ function createProductCard(p) {
   card.appendChild(nameEl);
   card.appendChild(priceEl);
   card.appendChild(actions);
+
+  // 数量初期化
+  STATE.quantities[p.id] = 0;
 
   // 数量変更イベント
   btnMinus.addEventListener("click", () => {
@@ -218,45 +222,34 @@ function createProductCard(p) {
   return card;
 }
 
-// 商品カード生成（条件に応じて「ページ」も作る）
+// 商品カード群を生成
 function buildProductCards() {
   const container = byId("productArea");
   container.innerHTML = "";
   STATE.quantities = {};
 
-  const isHorizontal = STATE.scrollDir === "horizontal";
-  const products = STATE.currentProducts;
-
-  if (!isHorizontal) {
-    // 🔹 縦スクロール条件（vv / hv）：普通にグリッドに並べる
-    products.forEach(p => {
+  if (STATE.scrollDir === "vertical") {
+    // 🔹 vv / hv：カードをそのまま詰めて縦スクロール
+    STATE.currentProducts.forEach(p => {
       const card = createProductCard(p);
       container.appendChild(card);
     });
-     } else {
-    // 🔹 横スクロール条件（vh / hh）：ページ分割
-    // portrait: 2列×4行 ≒ 8枚 / page
-    // landscape: 3列×3行 ≒ 9枚 / page
-    const perPage = (STATE.orientation === "portrait") ? 8 : 9;
-    ...
-  }
-
-
-    let pageEl = null;
-    products.forEach((p, idx) => {
-      if (idx % perPage === 0) {
-        pageEl = document.createElement("div");
-        pageEl.className = "page";
-        container.appendChild(pageEl);
+  } else {
+    // 🔹 vh / hh：カードサイズは同じまま、ページ単位に分けて横スライド
+    const perPage = (STATE.orientation === "portrait") ? 8 : 9; // 2×4 / 3×3 目安
+    let page = null;
+    STATE.currentProducts.forEach((p, index) => {
+      if (index % perPage === 0) {
+        page = document.createElement("div");
+        page.className = "page";
+        container.appendChild(page);
       }
       const card = createProductCard(p);
-      pageEl.appendChild(card);
+      page.appendChild(card);
     });
   }
 
-  // 念のためスクロール位置リセット
-  container.scrollLeft = 0;
-  container.scrollTop = 0;
+  refreshCartSummary();
 }
 
 // カート表示更新
@@ -275,9 +268,11 @@ function refreshCartSummary() {
 // 画面切り替え
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(el => el.classList.remove("active"));
-  const active = byId(id);
-  active.classList.add("active");
-  active.scrollTop = 0;
+  const target = byId(id);
+  if (target) {
+    target.classList.add("active");
+    target.scrollTop = 0;
+  }
 }
 
 // 実験開始
@@ -285,10 +280,6 @@ function startExperiment() {
   STATE.participantId = byId("participantId").value.trim();
   STATE.startTime = new Date();
   showScreen("screenMenu");
-
-  const productArea = byId("productArea");
-  productArea.scrollTop = 0;
-  productArea.scrollLeft = 0;
 }
 
 // 会計（終了処理）
@@ -310,28 +301,17 @@ function finishExperiment() {
     }
   }
 
-  const payload = {
-    participant_id: STATE.participantId || null,
-    condition: STATE.conditionCode,
-    orientation: STATE.orientation,
-    scroll_direction: STATE.scrollDir,
-    start_time: STATE.startTime.toISOString(),
-    end_time: STATE.endTime.toISOString(),
-    duration_ms: STATE.endTime - STATE.startTime,
-    orders: orders,
-    total_amount: total
-  };
-
-  const durationSec = (payload.duration_ms / 1000).toFixed(1);
-  const label = CONDITION_LABELS[payload.condition] || "";
+  const durationMs = STATE.endTime - STATE.startTime;
+  const durationSec = (durationMs / 1000).toFixed(1);
+  const label = CONDITION_LABELS[STATE.conditionCode] || "";
 
   let lines = [];
-  lines.push(`参加者ID: ${payload.participant_id ?? ""}`);
-  lines.push(`条件: ${payload.condition}（${label}）`);
-  lines.push(`画面の向き: ${payload.orientation}`);
-  lines.push(`スクロール方向: ${payload.scroll_direction}`);
-  lines.push(`開始時刻: ${payload.start_time}`);
-  lines.push(`終了時刻: ${payload.end_time}`);
+  lines.push(`参加者ID: ${STATE.participantId ?? ""}`);
+  lines.push(`条件: ${STATE.conditionCode}（${label}）`);
+  lines.push(`画面の向き: ${STATE.orientation}`);
+  lines.push(`スクロール方向: ${STATE.scrollDir}`);
+  lines.push(`開始時刻: ${STATE.startTime.toISOString()}`);
+  lines.push(`終了時刻: ${STATE.endTime.toISOString()}`);
   lines.push(`所要時間: ${durationSec}秒`);
   lines.push("");
   lines.push("注文内容:");
@@ -343,7 +323,7 @@ function finishExperiment() {
     }
   }
   lines.push("");
-  lines.push(`合計金額: ¥${payload.total_amount.toLocaleString()}`);
+  lines.push(`合計金額: ¥${total.toLocaleString()}`);
 
   byId("textOutput").textContent = lines.join("\n");
 
@@ -364,11 +344,25 @@ async function copyText() {
 
 // 初期化
 window.addEventListener("DOMContentLoaded", () => {
-  parseConditionFromURL();   // condから向き＆スクロール方向＆メニュー決定
-  buildProductCards();       // そのメニューでカード生成
-  refreshCartSummary();
+  try {
+    parseConditionFromURL();   // condから向き＆スクロール方向＆メニュー決定
+    buildProductCards();       // そのメニューでカード生成
 
-  byId("btnStart").addEventListener("click", startExperiment);
-  byId("btnCheckout").addEventListener("click", finishExperiment);
-  byId("btnCopyText").addEventListener("click", copyText);
+    const btnStart = byId("btnStart");
+    const btnCheckout = byId("btnCheckout");
+    const btnCopyText = byId("btnCopyText");
+
+    if (btnStart) {
+      btnStart.addEventListener("click", startExperiment);
+    }
+    if (btnCheckout) {
+      btnCheckout.addEventListener("click", finishExperiment);
+    }
+    if (btnCopyText) {
+      btnCopyText.addEventListener("click", copyText);
+    }
+  } catch (e) {
+    console.error("初期化中にエラーが発生しました:", e);
+    alert("スクリプトの実行中にエラーが発生しました。コードのタイプミスなどがないか確認してください。");
+  }
 });
