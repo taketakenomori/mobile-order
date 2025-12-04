@@ -317,3 +317,12 @@ body[data-orientation="portrait"] .cartbar .primary {
   font-size: 13px;
   min-height: 34px;
 }
+
+/* 横画面のときは body ごと固定して、ズレを最小限に */
+body[data-orientation="landscape"] {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
