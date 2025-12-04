@@ -260,8 +260,8 @@ function buildProductCards() {
   } else {
     // 🔹 vh / hh：カードサイズは同じまま、ページ単位に分けて横スライド
     // portrait: 2列×5行 ≒ 10枚 / page
-    // landscape: 3列×4行 ≒ 12枚 / page
-    const perPage = (STATE.orientation === "portrait") ? 10 : 12;
+    // landscape: 3列×3行 ≒ 9枚 / page
+    const perPage = (STATE.orientation === "portrait") ? 10 : 9;
     let page = null;
     STATE.currentProducts.forEach((p, index) => {
       if (index % perPage === 0) {
