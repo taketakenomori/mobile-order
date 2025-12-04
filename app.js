@@ -292,13 +292,38 @@ function refreshCartSummary() {
 
 // 画面切り替え
 function showScreen(id) {
+  // 画面切り替え
   document.querySelectorAll(".screen").forEach(el => el.classList.remove("active"));
   const target = byId(id);
   if (target) {
     target.classList.add("active");
     target.scrollTop = 0;
   }
+
+  // 🔹 「横画面（hv / hh）」のときは、
+  //    body への縦方向スクロール（touchmove）を抑制して
+  //    サイト全体がズルッと動く感じを減らす
+  if (STATE.orientation === "landscape") {
+    if (!bodyTouchHandler) {
+      bodyTouchHandler = function (e) {
+        const products = byId("productArea");
+        if (!products) return;
+        // メニュー以外（＝背景部分など）での縦スワイプを止める
+        if (!products.contains(e.target)) {
+          e.preventDefault();
+        }
+      };
+      document.addEventListener("touchmove", bodyTouchHandler, { passive: false });
+    }
+  } else {
+    // 縦画面に戻ったときは制御を解除
+    if (bodyTouchHandler) {
+      document.removeEventListener("touchmove", bodyTouchHandler);
+      bodyTouchHandler = null;
+    }
+  }
 }
+
 
 // 実験開始
 function startExperiment() {
