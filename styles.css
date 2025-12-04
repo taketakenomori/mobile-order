@@ -317,3 +317,12 @@ body[data-orientation="portrait"] .cartbar .primary {
   font-size: 13px;
   min-height: 34px;
 }
+
+html, body, main, .screen {
+  overscroll-behavior: none;
+}
+
+.products.horizontal {
+  /* すでにある指定に追加でOK */
+  touch-action: pan-x;  /* ← 横方向のジェスチャーに限定するヒント */
+}
