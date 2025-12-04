@@ -373,10 +373,20 @@ window.addEventListener("DOMContentLoaded", () => {
     parseConditionFromURL();   // condから向き＆スクロール方向＆メニュー決定
     buildProductCards();       // そのメニューでカード生成
 
-    const btnStart = byId("btnStart");
+    const introForm   = byId("introForm");
+    const btnStart    = byId("btnStart");
     const btnCheckout = byId("btnCheckout");
     const btnCopyText = byId("btnCopyText");
 
+    // 🔹 Enter（改行）でフォーム送信 → ページリロード、を防ぐ
+    if (introForm) {
+      introForm.addEventListener("submit", (e) => {
+        e.preventDefault();   // ページ遷移させない
+        startExperiment();    // スタートボタンと同じ動き
+      });
+    }
+
+    // クリックでもスタートできるように従来どおり残す
     if (btnStart) {
       btnStart.addEventListener("click", startExperiment);
     }
@@ -391,3 +401,4 @@ window.addEventListener("DOMContentLoaded", () => {
     alert("スクリプトの実行中にエラーが発生しました。コードのタイプミスなどがないか確認してください。");
   }
 });
+
