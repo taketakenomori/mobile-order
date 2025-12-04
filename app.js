@@ -100,11 +100,33 @@ let STATE = {
   participantId: ""
 };
 
-// URLの ?cond= から条件を取得 ＋ 向きごとにメニューセット選択
 function parseConditionFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  const cond = (params.get("cond") || "vv").toLowerCase();
+  const url = new URL(window.location.href);
+  const params = url.searchParams;
 
+  let cond = params.get("cond");
+
+  if (cond) {
+    // ① URLにcondがある場合 → 正規化して保存
+    cond = cond.toLowerCase();
+    localStorage.setItem("lastCond", cond);
+
+  } else {
+    // ② URLにcondがない場合 → 前回の条件 or デフォルトを使う
+    const saved = localStorage.getItem("lastCond");
+    if (saved) {
+      cond = saved;
+    } else {
+      cond = "vv"; // 初回デフォルト条件
+      localStorage.setItem("lastCond", cond);
+    }
+
+    // ③ 使うことになったcondをURLにも反映しておく（以降のリロードが安定）
+    url.searchParams.set("cond", cond);
+    history.replaceState(null, "", url.toString());
+  }
+
+  // ここから先は今までどおり
   let orientation = "portrait";
   let scrollDir = "vertical";
 
@@ -150,6 +172,7 @@ function parseConditionFromURL() {
     labelEl.textContent = CONDITION_LABELS[cond] || cond;
   }
 }
+
 
 // 商品カード生成のヘルパー
 function createProductCard(p) {
