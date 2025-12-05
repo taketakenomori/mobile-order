@@ -15,18 +15,20 @@
   <!-- スタート画面 -->
   <section id="screenIntro" class="screen active">
     <h2>実験の説明</h2>
-    <p class="muted">
-      ご自身のスマートフォンで、モバイルオーダー風の画面から注文をしていただきます。<br>
-      「スタート」ボタンを押してから「会計」ボタンを押すまでの時間と、注文内容を記録します。
-    </p>
+
+    <!-- ⭐ 導入ストーリーを JS で切り替える -->
+    <p id="introStory" class="muted"></p>
+
     <form class="card" id="introForm">
       <label class="block">参加者ID（学籍番号、ニックネームなど・任意）
         <input type="text" id="participantId" placeholder="例: S001">
       </label>
+
       <p class="muted small">
         この画面は、条件 <span id="condLabel">--</span> が割り当てられています。<br>
         実験者の指示に従って、スマホの向きをセットしてください。
       </p>
+
       <button type="button" id="btnStart" class="primary">スタート</button>
     </form>
   </section>
@@ -39,9 +41,9 @@
       選び終わったら、画面下の「会計へ」を押してください。
     </p>
 
-    <div id="productArea" class="products">
-      <!-- JSで商品カードを生成 -->
-    </div>
+    <div id="categoryBar" class="category-bar"></div>
+
+    <div id="productArea" class="products"></div>
 
     <div class="cartbar">
       <div class="cartinfo">
@@ -54,16 +56,19 @@
   <!-- 結果画面 -->
   <section id="screenResult" class="screen">
     <h2>完了しました</h2>
+
     <div class="card">
       <p class="muted">
         ① 下の「フォーム用テキストをコピー」を押してください。<br>
         ② 実験者から案内されたGoogleフォームを開き、回答欄に貼り付けてください。
       </p>
+
       <button id="btnCopyText" class="primary">フォーム用テキストをコピー</button>
+
       <h3 class="small">フォームに貼り付ける内容</h3>
       <pre id="textOutput" class="jsonbox"></pre>
-
     </div>
+
   </section>
 </main>
 
