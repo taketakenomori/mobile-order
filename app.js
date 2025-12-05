@@ -1,9 +1,9 @@
 // ============================================================
-// 画面の向きごとの 36 品メニューセット
+// 画面の向きごとの 36 品メニューセット（カテゴリ付き）
 // ============================================================
 const MENUS = {
   portrait: [
-    // バーガーショップ 36 品（あなたの提供データ）
+    // バーガーショップ 36 品
     { id: "p1", name: "ハンバーガー", price: 300, category: "バーガー" },
     { id: "p2", name: "チーズバーガー", price: 340, category: "バーガー" },
     { id: "p3", name: "てりやきバーガー", price: 360, category: "バーガー" },
@@ -115,7 +115,14 @@ let STATE = {
   quantities: {},
   startTime: null,
   endTime: null,
-  participantId: ""
+  participantId: "",
+  // ⭐ スクロールログ
+  scrollLogs: {
+    count: 0,
+    totalDistance: 0,
+    lastPos: 0,
+    maxPos: 0
+  }
 };
 
 // ============================================================
@@ -129,9 +136,9 @@ function parseConditionFromURL() {
   let scrollDir = "vertical";
 
   switch (cond) {
-    case "vv": orientation = "portrait"; scrollDir = "vertical"; break;
-    case "vh": orientation = "portrait"; scrollDir = "horizontal"; break;
-    case "hv": orientation = "landscape"; scrollDir = "vertical"; break;
+    case "vv": orientation = "portrait";  scrollDir = "vertical";   break;
+    case "vh": orientation = "portrait";  scrollDir = "horizontal"; break;
+    case "hv": orientation = "landscape"; scrollDir = "vertical";   break;
     case "hh": orientation = "landscape"; scrollDir = "horizontal"; break;
   }
 
@@ -155,16 +162,13 @@ function parseConditionFromURL() {
 
   // ⭐ 導入ストーリー切り替え
   const introStory = byId("introStory");
-
   if (cond === "vv" || cond === "vh") {
     introStory.textContent =
       "あなたは今、お腹が空いてバーガーショップに来ています。\n" +
       "お店では、スマートフォンの画面を使って注文を行います。\n" +
       "画面に表示されるメニューの中から、\n" +
       "自分が食べたい・飲みたいと思うもの を自由にお選びください。";
-  }
-
-  if (cond === "hv" || cond === "hh") {
+  } else {
     introStory.textContent =
       "あなたは今、お腹が空いてイタリアンのレストランに来ています。\n" +
       "お店ではスマートフォンの画面を使って注文を行います。\n" +
@@ -232,16 +236,16 @@ function buildProductCards() {
 
     // 数量変更処理
     btnMinus.addEventListener("click", () => {
-      const next = Math.max(0, STATE.quantities[p.id] - 1);
+      const next = Math.max(0, (STATE.quantities[p.id] || 0) - 1);
       STATE.quantities[p.id] = next;
-      qtyVal.textContent = next;
+      qtyVal.textContent = String(next);
       refreshCartSummary();
     });
 
     btnPlus.addEventListener("click", () => {
-      const next = STATE.quantities[p.id] + 1;
+      const next = (STATE.quantities[p.id] || 0) + 1;
       STATE.quantities[p.id] = next;
-      qtyVal.textContent = next;
+      qtyVal.textContent = String(next);
       refreshCartSummary();
     });
 
@@ -257,12 +261,12 @@ function refreshCartSummary() {
   let total = 0;
 
   for (const p of STATE.currentProducts) {
-    const q = STATE.quantities[p.id];
+    const q = STATE.quantities[p.id] || 0;
     count += q;
     total += q * p.price;
   }
 
-  byId("itemCount").textContent = count;
+  byId("itemCount").textContent = String(count);
   byId("totalAmount").textContent = "¥" + total.toLocaleString();
 }
 
@@ -280,11 +284,23 @@ function showScreen(id) {
 function startExperiment() {
   STATE.participantId = byId("participantId").value.trim();
   STATE.startTime = new Date();
+
+  // スクロール位置 & ログをリセット
+  const area = byId("productArea");
+  area.scrollTop = 0;
+  area.scrollLeft = 0;
+  STATE.scrollLogs = {
+    count: 0,
+    totalDistance: 0,
+    lastPos: 0,
+    maxPos: 0
+  };
+
   showScreen("screenMenu");
 }
 
 // ============================================================
-// 終了処理（カテゴリ集計入り版）
+// 終了処理（カテゴリ集計 + 所要時間 + スクロールログ）
 // ============================================================
 function finishExperiment() {
   STATE.endTime = new Date();
@@ -292,6 +308,10 @@ function finishExperiment() {
   let orders = [];
   let total = 0;
   let totalItems = 0;
+
+  // 所要時間（秒）
+  const durationMs  = STATE.endTime - STATE.startTime;
+  const durationSec = (durationMs / 1000).toFixed(1);
 
   // カテゴリごとの個数を集計
   const categoryCounts = {};   // { "バーガー": 3, "ドリンク": 2, ... }
@@ -318,14 +338,29 @@ function finishExperiment() {
   });
 
   const distinctCategoryCount = Object.keys(categoryCounts).length;
+  const condLabel = CONDITION_LABELS[STATE.conditionCode] || "";
 
-  // フォーム用テキスト生成
+  // ===== フォーム用テキスト生成 =====
   let lines = [];
+  lines.push("===== 実験結果 =====");
   lines.push(`参加者ID: ${STATE.participantId}`);
-  lines.push(`条件: ${STATE.conditionCode}（${CONDITION_LABELS[STATE.conditionCode]}）`);
+  lines.push(`条件: ${STATE.conditionCode}（${condLabel}）`);
   lines.push("");
 
-  lines.push("注文内容:");
+  // ▼ 所要時間
+  lines.push("▼ 所要時間");
+  lines.push(`・${durationSec} 秒`);
+  lines.push("");
+
+  // ▼ スクロール行動
+  lines.push("▼ スクロール行動");
+  lines.push(`・スクロール回数: ${STATE.scrollLogs.count}`);
+  lines.push(`・総スクロール距離(px): ${STATE.scrollLogs.totalDistance}`);
+  lines.push(`・最大到達位置(px): ${STATE.scrollLogs.maxPos}`);
+  lines.push("");
+
+  // ▼ 注文内容
+  lines.push("▼ 注文内容");
   if (orders.length === 0) {
     lines.push("・（なし）");
   } else {
@@ -334,13 +369,15 @@ function finishExperiment() {
     }
   }
 
+  // ▼ 金額・点数
   lines.push("");
-  lines.push(`合計金額: ¥${total.toLocaleString()}`);
-  lines.push(`合計点数: ${totalItems}品`);
+  lines.push("▼ 合計");
+  lines.push(`・合計金額: ¥${total.toLocaleString()}`);
+  lines.push(`・合計点数: ${totalItems}品`);
 
-  // ★ カテゴリ別の個数
+  // ▼ カテゴリ別個数
   lines.push("");
-  lines.push("カテゴリ別の個数:");
+  lines.push("▼ カテゴリ別の個数");
   if (distinctCategoryCount === 0) {
     lines.push("・（なし）");
   } else {
@@ -349,15 +386,15 @@ function finishExperiment() {
     }
   }
 
-  // ★ 異なるカテゴリの種類数
+  // ▼ 異なるカテゴリ数
   lines.push("");
-  lines.push(`注文したカテゴリの種類数: ${distinctCategoryCount}`);
+  lines.push("▼ 注文したカテゴリの種類数");
+  lines.push(`・${distinctCategoryCount} 種類`);
 
   byId("textOutput").textContent = lines.join("\n");
 
   showScreen("screenResult");
 }
-
 
 // ============================================================
 // テキストコピー
@@ -375,12 +412,41 @@ async function copyText() {
 }
 
 // ============================================================
+// スクロールログのセットアップ
+// ============================================================
+function setupScrollLogging() {
+  const area = byId("productArea");
+
+  area.addEventListener("scroll", () => {
+    // 条件に応じて縦 or 横の位置を使う
+    const pos = (STATE.scrollDir === "vertical")
+      ? area.scrollTop
+      : area.scrollLeft;
+
+    // 初回スクロール時は lastPos を現在位置に合わせる
+    if (STATE.scrollLogs.count === 0) {
+      STATE.scrollLogs.lastPos = pos;
+    }
+
+    const diff = Math.abs(pos - STATE.scrollLogs.lastPos);
+    STATE.scrollLogs.totalDistance += diff;
+    STATE.scrollLogs.lastPos = pos;
+    STATE.scrollLogs.count += 1;
+
+    if (pos > STATE.scrollLogs.maxPos) {
+      STATE.scrollLogs.maxPos = pos;
+    }
+  });
+}
+
+// ============================================================
 // 初期化処理
 // ============================================================
 window.addEventListener("DOMContentLoaded", () => {
   parseConditionFromURL();
   buildProductCards();
   refreshCartSummary();
+  setupScrollLogging();
 
   byId("btnStart").addEventListener("click", startExperiment);
   byId("btnCheckout").addEventListener("click", finishExperiment);
