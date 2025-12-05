@@ -284,16 +284,20 @@ function startExperiment() {
 }
 
 // ============================================================
-// 終了処理
+// 終了処理（カテゴリ集計入り版）
 // ============================================================
 function finishExperiment() {
   STATE.endTime = new Date();
 
   let orders = [];
   let total = 0;
+  let totalItems = 0;
+
+  // カテゴリごとの個数を集計
+  const categoryCounts = {};   // { "バーガー": 3, "ドリンク": 2, ... }
 
   STATE.currentProducts.forEach(p => {
-    const q = STATE.quantities[p.id];
+    const q = STATE.quantities[p.id] || 0;
     if (q > 0) {
       orders.push({
         name: p.name,
@@ -302,11 +306,20 @@ function finishExperiment() {
         unit_price: p.price,
         subtotal: q * p.price
       });
+
       total += q * p.price;
+      totalItems += q;
+
+      if (!categoryCounts[p.category]) {
+        categoryCounts[p.category] = 0;
+      }
+      categoryCounts[p.category] += q;
     }
   });
 
-  // フォーム用テキスト
+  const distinctCategoryCount = Object.keys(categoryCounts).length;
+
+  // フォーム用テキスト生成
   let lines = [];
   lines.push(`参加者ID: ${STATE.participantId}`);
   lines.push(`条件: ${STATE.conditionCode}（${CONDITION_LABELS[STATE.conditionCode]}）`);
@@ -320,13 +333,31 @@ function finishExperiment() {
       lines.push(`・${o.name} ×${o.quantity}（¥${o.unit_price}）`);
     }
   }
+
   lines.push("");
   lines.push(`合計金額: ¥${total.toLocaleString()}`);
+  lines.push(`合計点数: ${totalItems}品`);
+
+  // ★ カテゴリ別の個数
+  lines.push("");
+  lines.push("カテゴリ別の個数:");
+  if (distinctCategoryCount === 0) {
+    lines.push("・（なし）");
+  } else {
+    for (const [cat, cnt] of Object.entries(categoryCounts)) {
+      lines.push(`・${cat}: ${cnt}品`);
+    }
+  }
+
+  // ★ 異なるカテゴリの種類数
+  lines.push("");
+  lines.push(`注文したカテゴリの種類数: ${distinctCategoryCount}`);
 
   byId("textOutput").textContent = lines.join("\n");
 
   showScreen("screenResult");
 }
+
 
 // ============================================================
 // テキストコピー
