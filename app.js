@@ -116,7 +116,6 @@ let STATE = {
   startTime: null,
   endTime: null,
   participantId: "",
-  // ⭐ スクロールログ
   scrollLogs: {
     count: 0,
     totalDistance: 0,
@@ -149,10 +148,9 @@ function parseConditionFromURL() {
   // メニュー切り替え
   STATE.currentProducts = MENUS[orientation];
 
-  // CSS の切り替え用属性
+  // CSS 切り替え用
   document.body.dataset.orientation = orientation;
 
-  // メニュー領域にスクロール方向クラスを付与
   const pa = byId("productArea");
   pa.classList.remove("vertical", "horizontal");
   pa.classList.add(scrollDir);
@@ -160,7 +158,7 @@ function parseConditionFromURL() {
   // 条件ラベル
   byId("condLabel").textContent = CONDITION_LABELS[cond];
 
-  // ⭐ 導入ストーリー切り替え
+  // 導入ストーリー
   const introStory = byId("introStory");
   if (cond === "vv" || cond === "vh") {
     introStory.textContent =
@@ -179,13 +177,21 @@ function parseConditionFromURL() {
 
 // ============================================================
 // 商品カード生成
+//  縦スク：全部そのまま詰める
+//  横スク：ページ（portrait=10件, landscape=9件）で分割して .page に入れる
 // ============================================================
 function buildProductCards() {
   const container = byId("productArea");
   container.innerHTML = "";
   STATE.quantities = {};
 
-  STATE.currentProducts.forEach(p => {
+  const isHorizontal = (STATE.scrollDir === "horizontal");
+
+  // スクロール位置もリセットしておく
+  container.scrollTop = 0;
+  container.scrollLeft = 0;
+
+  const createCard = (p) => {
     STATE.quantities[p.id] = 0;
 
     const card = document.createElement("div");
@@ -234,7 +240,7 @@ function buildProductCards() {
     card.appendChild(priceEl);
     card.appendChild(actions);
 
-    // 数量変更処理
+    // 数量変更
     btnMinus.addEventListener("click", () => {
       const next = Math.max(0, (STATE.quantities[p.id] || 0) - 1);
       STATE.quantities[p.id] = next;
@@ -249,8 +255,30 @@ function buildProductCards() {
       refreshCartSummary();
     });
 
-    container.appendChild(card);
-  });
+    return card;
+  };
+
+  if (!isHorizontal) {
+    // ▼ 縦スク条件（vv / hv）：全部そのままコンテナに詰める
+    STATE.currentProducts.forEach(p => {
+      const card = createCard(p);
+      container.appendChild(card);
+    });
+  } else {
+    // ▼ 横スク条件（vh / hh）：ページ分割して横に並べる
+    const perPage = (STATE.orientation === "portrait") ? 10 : 9; // portrait: 2x5, landscape: 3x3
+
+    let page = null;
+    STATE.currentProducts.forEach((p, idx) => {
+      if (idx % perPage === 0) {
+        page = document.createElement("div");
+        page.className = "page";
+        container.appendChild(page);
+      }
+      const card = createCard(p);
+      page.appendChild(card);
+    });
+  }
 }
 
 // ============================================================
@@ -285,10 +313,10 @@ function startExperiment() {
   STATE.participantId = byId("participantId").value.trim();
   STATE.startTime = new Date();
 
-  // スクロール位置 & ログをリセット
   const area = byId("productArea");
   area.scrollTop = 0;
   area.scrollLeft = 0;
+
   STATE.scrollLogs = {
     count: 0,
     totalDistance: 0,
@@ -309,12 +337,10 @@ function finishExperiment() {
   let total = 0;
   let totalItems = 0;
 
-  // 所要時間（秒）
   const durationMs  = STATE.endTime - STATE.startTime;
   const durationSec = (durationMs / 1000).toFixed(1);
 
-  // カテゴリごとの個数を集計
-  const categoryCounts = {};   // { "バーガー": 3, "ドリンク": 2, ... }
+  const categoryCounts = {};
 
   STATE.currentProducts.forEach(p => {
     const q = STATE.quantities[p.id] || 0;
@@ -340,26 +366,25 @@ function finishExperiment() {
   const distinctCategoryCount = Object.keys(categoryCounts).length;
   const condLabel = CONDITION_LABELS[STATE.conditionCode] || "";
 
-  // ===== フォーム用テキスト生成 =====
   let lines = [];
   lines.push("===== 実験結果 =====");
   lines.push(`参加者ID: ${STATE.participantId}`);
   lines.push(`条件: ${STATE.conditionCode}（${condLabel}）`);
   lines.push("");
 
-  // ▼ 所要時間
+  // 所要時間
   lines.push("▼ 所要時間");
   lines.push(`・${durationSec} 秒`);
   lines.push("");
 
-  // ▼ スクロール行動
+  // スクロール行動
   lines.push("▼ スクロール行動");
   lines.push(`・スクロール回数: ${STATE.scrollLogs.count}`);
   lines.push(`・総スクロール距離(px): ${STATE.scrollLogs.totalDistance}`);
   lines.push(`・最大到達位置(px): ${STATE.scrollLogs.maxPos}`);
   lines.push("");
 
-  // ▼ 注文内容
+  // 注文内容
   lines.push("▼ 注文内容");
   if (orders.length === 0) {
     lines.push("・（なし）");
@@ -369,13 +394,13 @@ function finishExperiment() {
     }
   }
 
-  // ▼ 金額・点数
+  // 合計
   lines.push("");
   lines.push("▼ 合計");
   lines.push(`・合計金額: ¥${total.toLocaleString()}`);
   lines.push(`・合計点数: ${totalItems}品`);
 
-  // ▼ カテゴリ別個数
+  // カテゴリ別
   lines.push("");
   lines.push("▼ カテゴリ別の個数");
   if (distinctCategoryCount === 0) {
@@ -386,7 +411,7 @@ function finishExperiment() {
     }
   }
 
-  // ▼ 異なるカテゴリ数
+  // 異なるカテゴリ数
   lines.push("");
   lines.push("▼ 注文したカテゴリの種類数");
   lines.push(`・${distinctCategoryCount} 種類`);
@@ -418,12 +443,10 @@ function setupScrollLogging() {
   const area = byId("productArea");
 
   area.addEventListener("scroll", () => {
-    // 条件に応じて縦 or 横の位置を使う
     const pos = (STATE.scrollDir === "vertical")
       ? area.scrollTop
       : area.scrollLeft;
 
-    // 初回スクロール時は lastPos を現在位置に合わせる
     if (STATE.scrollLogs.count === 0) {
       STATE.scrollLogs.lastPos = pos;
     }
@@ -440,7 +463,7 @@ function setupScrollLogging() {
 }
 
 // ============================================================
-// 初期化処理
+// 初期化
 // ============================================================
 window.addEventListener("DOMContentLoaded", () => {
   parseConditionFromURL();
