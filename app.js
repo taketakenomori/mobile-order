@@ -9,7 +9,7 @@ const MENUS = {
     { id: "p3", name: "てりやきバーガー", price: 360, category: "バーガー" },
     { id: "p4", name: "フィッシュバーガー", price: 350, category: "バーガー" },
     { id: "p5", name: "ダブルバーガー", price: 420, category: "バーガー" },
-    { id: "p6", name: "ベーコンレタスバーガー", price: 380, category: "バーガー" },
+    { id: "p6", name: "BLTバーガー", price: 380, category: "バーガー" },
     { id: "p7", name: "チキンバーガー", price: 340, category: "バーガー" },
     { id: "p8", name: "スパイシーバーガー", price: 370, category: "バーガー" },
     { id: "p9", name: "和風バーガー", price: 380, category: "バーガー" },
